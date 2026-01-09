@@ -896,6 +896,51 @@ function hasAccess(featureKey){
   const tier = TIERS[tierKey] || TIERS.beginner;
   return !!tier[featureKey];
 }
+// ================================
+// ✅ Upgrade modal helpers
+// ================================
+function showUpgrade(featureLabel){
+  const modal = $("upgradeModal");
+  const body = $("upgradeBody");
+  const closeBtn = $("upgradeCloseBtn");
+  const goBtn = $("upgradeGoBtn");
+
+  if (!modal || !body) return;
+
+  const isEs = (typeof currentLang === "function" && currentLang() === "es");
+
+  const title = isEs ? "Se requiere actualización" : "Upgrade required";
+  const msg = isEs
+    ? `Esta función (${featureLabel}) está disponible en un plan superior.`
+    : `This feature (${featureLabel}) is available in a higher plan.`;
+
+  const titleEl = $("upgradeTitle");
+  if (titleEl) titleEl.textContent = title;
+  body.textContent = msg;
+
+  modal.style.display = "flex";
+
+  const close = () => { modal.style.display = "none"; };
+
+  modal.onclick = (e) => { if (e.target === modal) close(); };
+  if (closeBtn) closeBtn.onclick = close;
+
+  if (goBtn) goBtn.onclick = () => {
+    close();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+}
+
+/**
+ * Gate a feature without removing buttons.
+ * Usage:
+ *   if (!gate("qr_print", "Print QR")) return;
+ */
+function gate(featureKey, featureLabel){
+  if (hasAccess(featureKey)) return true;
+  showUpgrade(featureLabel);
+  return false;
+}
 
     // ================================
 // ✅ QR ITEM (Step 2: button wiring)
@@ -944,6 +989,7 @@ function makeQRFromCalculator(){
   $("qrItemCard")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 function printQR(){
+  if (!gate("qr_print","Print QR")) return;
   const name = ($("qrItemName")?.value || "").trim();
   const priceRaw = ($("qrItemPrice")?.value || "").trim();
   const qrBox = $("qrPreview");
