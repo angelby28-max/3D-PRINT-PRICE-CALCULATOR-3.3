@@ -754,6 +754,105 @@ body.light{
 
   <script>
     const $ = (id) => document.getElementById(id);
+   // ================================
+// ✅ FEATURE TIERS (Single Source of Truth)
+// ================================
+// TIER MATRIX (what each plan is allowed to do)
+// Beginner:
+// - Can generate QR codes (preview + link)
+// - Can add from QR to inventory (optional: you decide later)
+// - CANNOT print QR / print labels / export-import / job history
+//
+// Advanced:
+// - Full calculator features incl. Custom surcharge + Platform fees + Depreciation
+// - Still can restrict printing/inventory if you want (we’ll decide later)
+//
+// Pro:
+// - Everything unlocked (no restrictions)
+
+const LS_TIER_KEY = "app_tier_v1"; // stored in localStorage
+
+const TIERS = {
+  beginner: {
+    name: { en: "Beginner", es: "Principiante" },
+    // QR
+    qr_generate: true,
+    qr_print: false,
+
+    // Inventory (we can change later)
+    inv_add_from_calc: true,
+    inv_add_from_qr: true,
+    inv_export_import: false,
+    inv_clear_all: false,
+
+    // Labels / printing
+    labels_print: false,
+
+    // Calculator advanced sections
+    custom_surcharge: false,
+    platform_fees: false,
+    depreciation: false,
+    presets: false,
+    job_history: false
+  },
+
+  advanced: {
+    name: { en: "Advanced", es: "Avanzado" },
+    // QR
+    qr_generate: true,
+    qr_print: false, // you said you want QR generate but NOT print for lower tiers
+
+    // Inventory (we can decide later; safe default = still locked)
+    inv_add_from_calc: true,
+    inv_add_from_qr: true,
+    inv_export_import: false,
+    inv_clear_all: false,
+
+    // Labels / printing
+    labels_print: false,
+
+    // Calculator advanced sections (UNLOCKED)
+    custom_surcharge: true,
+    platform_fees: true,
+    depreciation: true,
+    presets: true,
+    job_history: false // optional — can move to Pro if you want
+  },
+
+  pro: {
+    name: { en: "Pro", es: "Pro" },
+    // Everything unlocked
+    qr_generate: true,
+    qr_print: true,
+
+    inv_add_from_calc: true,
+    inv_add_from_qr: true,
+    inv_export_import: true,
+    inv_clear_all: true,
+
+    labels_print: true,
+
+    custom_surcharge: true,
+    platform_fees: true,
+    depreciation: true,
+    presets: true,
+    job_history: true
+  }
+};
+
+// Current tier getter (defaults to beginner)
+function getTier(){
+  const saved = (localStorage.getItem(LS_TIER_KEY) || "beginner").trim();
+  return TIERS[saved] ? saved : "beginner";
+}
+
+// Feature access check
+function hasAccess(featureKey){
+  const tierKey = getTier();
+  const tier = TIERS[tierKey] || TIERS.beginner;
+  return !!tier[featureKey];
+}
+
     // ================================
 // ✅ QR ITEM (Step 2: button wiring)
 // ================================
