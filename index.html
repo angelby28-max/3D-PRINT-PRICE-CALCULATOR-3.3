@@ -2986,8 +2986,62 @@ function wireCustomUI(){
   // Initial render
   refresh();
 }
+// ================================
+// MODE SYSTEM (Beginner / Advanced / Pro) ✅ Commit #1
+// - Saves selected mode in localStorage
+// - Optional URL override: ?mode=beginner | advanced | pro
+// - No UI locking yet (that will be next commits)
+// ================================
+const LS_MODE_KEY = "appMode"; // "beginner" | "advanced" | "pro"
+
+function normalizeMode(v){
+  v = String(v || "").toLowerCase().trim();
+  if (v === "free") v = "beginner"; // safety (older naming)
+  if (v === "standard") v = "advanced";
+  if (v === "starter") v = "beginner";
+  if (v === "basic") v = "beginner";
+  if (v === "plus") v = "advanced";
+  if (v === "premium") v = "pro";
+  if (!["beginner","advanced","pro"].includes(v)) return "beginner";
+  return v;
+}
+
+function getMode(){
+  return normalizeMode(localStorage.getItem(LS_MODE_KEY) || "beginner");
+}
+
+function setMode(mode){
+  const m = normalizeMode(mode);
+  localStorage.setItem(LS_MODE_KEY, m);
+  // We'll use this later to apply locks/hide fields
+  // For now we just save it.
+  return m;
+}
+
+// Optional: allow switching mode via URL, for testing
+// Example: yoursite.com/?mode=advanced
+function applyModeFromURL(){
+  try{
+    const params = new URLSearchParams(location.search);
+    const m = params.get("mode");
+    if (m){
+      setMode(m);
+    }
+  }catch(e){}
+}
+
+// Helper we’ll use in later commits
+function modeRank(mode){
+  const m = normalizeMode(mode);
+  return (m === "beginner") ? 1 : (m === "advanced") ? 2 : 3;
+}
+function isAtLeast(requiredMode){
+  return modeRank(getMode()) >= modeRank(requiredMode);
+}
 
     function init(){
+      applyModeFromURL(); // ✅ allow ?mode=beginner|advanced|pro (Commit #1)
+
       refreshAllPresetSelects();
       wireCustomUI();
 
