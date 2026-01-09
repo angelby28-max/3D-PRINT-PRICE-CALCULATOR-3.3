@@ -3369,6 +3369,13 @@ if ($("tierSelect")) {
   $("tierSelect").addEventListener("change", (e) => {
     const next = (e.target.value || "beginner").trim();
     localStorage.setItem(LS_TIER_KEY, TIERS[next] ? next : "beginner");
+// ✅ Tier is master: keep beginnerMode synced
+const isPro = (next.toLowerCase() === "pro");
+
+// Sync beginner toggle + saved setting
+if ($("beginnerMode")) $("beginnerMode").checked = !isPro;
+settings.beginnerMode = !isPro;
+saveSettings(settings);
 
     // Optional: give a quick status message
     const tierName = TIERS[getTier()].name[currentLang()] || getTier();
@@ -3380,11 +3387,22 @@ if ($("tierSelect")) {
     // Re-render areas that may depend on tier later
     renderInventory();
     calc();
+    applyBeginnerModeUI(!isPro);
+
   });
 }
 
       const beginnerDefault = (typeof settings.beginnerMode === "boolean") ? settings.beginnerMode : true;
       $("beginnerMode").checked = beginnerDefault;
+      // ✅ Tier is master: override beginnerMode on load
+const t0 = ($("tierSelect")?.value || "beginner").toLowerCase();
+const isPro0 = (t0 === "pro");
+
+$("beginnerMode").checked = !isPro0;
+settings.beginnerMode = !isPro0;
+saveSettings(settings);
+applyBeginnerModeUI(!isPro0);
+
       applyBeginnerModeUI(beginnerDefault);
       $("beginnerMode").addEventListener("change", (e) => {
         const on = e.target.checked;
