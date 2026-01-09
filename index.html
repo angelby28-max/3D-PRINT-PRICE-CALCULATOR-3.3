@@ -3366,55 +3366,81 @@ if ($("tierSelect")) {
   // label text (simple for now; we can i18n it later)
   $("tierLabelPill").textContent = (currentLang() === "es") ? "Plan" : "Tier";
 
-  $("tierSelect").addEventListener("change", (e) => {
-    const next = (e.target.value || "beginner").trim();
-    localStorage.setItem(LS_TIER_KEY, TIERS[next] ? next : "beginner");
-// ✅ Tier is master: keep beginnerMode synced
-const isPro = (next.toLowerCase() === "pro");
+ $("tierSelect").addEventListener("change", (e) => {
+  const nextRaw = (e.target.value || "beginner").trim().toLowerCase();
+  const next = TIERS[nextRaw] ? nextRaw : "beginner";
 
-// Sync beginner toggle + saved setting
-if ($("beginnerMode")) $("beginnerMode").checked = !isPro;
-settings.beginnerMode = !isPro;
-saveSettings(settings);
+  // Save tier
+  localStorage.setItem(LS_TIER_KEY, next);
 
-    // Optional: give a quick status message
-    const tierName = TIERS[getTier()].name[currentLang()] || getTier();
+  // ✅ Tier drives Beginner Mode:
+  // Beginner tier => beginner UI
+  // Advanced + Pro => full UI (advanced-only visible)
+  const isBeginnerTier = (next === "beginner");
+
+  // Sync the checkbox (even if disabled, it can reflect status)
+  if ($("beginnerMode")) $("beginnerMode").checked = isBeginnerTier;
+
+  // Save to your existing settings storage (NO saveSettings() call)
+  settings.beginnerMode = isBeginnerTier;
+  saveJSON(LS_SETTINGS_KEY, settings);
+
+  // Status message
+  const tierName = (TIERS[next].name && TIERS[next].name[currentLang()]) ? TIERS[next].name[currentLang()] : next;
+  if ($("status")) {
     $("status").textContent = (currentLang() === "es")
       ? `Plan: ${tierName}`
       : `Tier: ${tierName}`;
     $("status").dataset.i18nStatusKey = "";
+  }
 
-    // Re-render areas that may depend on tier later
-    renderInventory();
-    calc();
-    applyBeginnerModeUI(!isPro);
+  // Apply UI + refresh
+  applyBeginnerModeUI(isBeginnerTier);
+  renderInventory();
+  calc();
+});
 
-  });
 }
 
       const beginnerDefault = (typeof settings.beginnerMode === "boolean") ? settings.beginnerMode : true;
-      $("beginnerMode").checked = beginnerDefault;
+      if ($("beginnerMode")) $("beginnerMode").checked = beginnerDefault;
 
 
-      applyBeginnerModeUI(beginnerDefault);
-      $("beginnerMode").addEventListener("change", (e) => {
-        const on = e.target.checked;
-        applyBeginnerModeUI(on);
-        const s = loadJSON(LS_SETTINGS_KEY, {});
-        s.beginnerMode = on;
-        saveJSON(LS_SETTINGS_KEY, s);
-      });
 
-      const lightDefault = (typeof settings.lightMode === "boolean") ? settings.lightMode : false;
-      $("lightMode").checked = lightDefault;
-      applyThemeUI(lightDefault);
-      $("lightMode").addEventListener("change", (e) => {
-        const on = e.target.checked;
-        applyThemeUI(on);
-        const s = loadJSON(LS_SETTINGS_KEY, {});
-        s.lightMode = on;
-        saveJSON(LS_SETTINGS_KEY, s);
-      });
+   applyBeginnerModeUI(beginnerDefault);
+
+if ($("beginnerMode")) {
+  $("beginnerMode").addEventListener("change", (e) => {
+    const on = e.target.checked;
+
+    applyBeginnerModeUI(on);
+
+    const s = loadJSON(LS_SETTINGS_KEY, {});
+    s.beginnerMode = on;
+    saveJSON(LS_SETTINGS_KEY, s);
+  });
+}
+
+
+        const lightDefault = (typeof settings.lightMode === "boolean") ? settings.lightMode : false;
+
+if ($("lightMode")) {
+  $("lightMode").checked = lightDefault;
+  applyThemeUI(lightDefault);
+
+  $("lightMode").addEventListener("change", (e) => {
+    const on = e.target.checked;
+    applyThemeUI(on);
+
+    const s = loadJSON(LS_SETTINGS_KEY, {});
+    s.lightMode = on;
+    saveJSON(LS_SETTINGS_KEY, s);
+  });
+} else {
+  // If the toggle doesn't exist, still apply the saved/default theme
+  applyThemeUI(lightDefault);
+}
+
 
       applyI18nToDOM();
 
