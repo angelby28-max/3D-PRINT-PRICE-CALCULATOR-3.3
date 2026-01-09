@@ -7,8 +7,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>3D Print Price Calculator</title>
   <meta name="theme-color" content="#111827" />
-  <style>
-    :root { --bg:#0b1220; --card:#111827; --text:#e5e7eb; --muted:#9ca3af; --line:#1f2937; --accent:#22c55e; --warn:#f59e0b; --danger:#ef4444; }
+ <style>
+   :root { --bg:#0b1220; --card:#111827; --text:#e5e7eb; --muted:#9ca3af; --line:#1f2937; --accent:#22c55e; --warn:#f59e0b; --danger:#ef4444; }
     *{ box-sizing:border-box; }
     body{
   margin:0;
@@ -19,6 +19,50 @@
 body.light{
   background: #f3f4f6;
   color: #111827;
+}
+/* ================================
+✅ Upgrade modal styling
+================================ */
+.modalOverlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 16px;
+  z-index: 9999;
+}
+.modalCard{
+  width: min(520px, 100%);
+  background: #111827;
+  border: 1px solid rgba(31,41,55,.9);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+body.light .modalCard{
+  background: #ffffff;
+  border-color: #e5e7eb;
+}
+.modalTitle{
+  font-weight: 900;
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+.modalBody{
+  color: rgba(229,231,235,.9);
+  line-height: 1.35;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+body.light .modalBody{ color:#111827; }
+
+.modalActions{
+  display:flex;
+  gap: 10px;
+  justify-content:flex-end;
+  flex-wrap: wrap;
 }
 
     .wrap{ max-width:1200px; margin:0 auto; padding:18px; }
@@ -2582,6 +2626,7 @@ function printSelectedLabels(){
       setTimeout(() => { try{ window.print(); }catch(e){} }, 300);
     };
   </scr` + `ipt>
+
 </body>
 </html>`;
 
@@ -3325,6 +3370,22 @@ if (sessionStorage.getItem("qrJustReturnedFromPrint") === "1") {
     applyQRParamsOnLoad();
 
   </script>
+<!-- ================================
+✅ UPGRADE REQUIRED MODAL (Tier gating)
+================================ -->
+<div id="upgradeModal" class="modalOverlay" style="display:none;">
+  <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="upgradeTitle">
+    <div class="modalTitle" id="upgradeTitle">Upgrade required</div>
+    <div class="modalBody" id="upgradeBody">
+      This feature is available in a higher plan.
+    </div>
+
+    <div class="modalActions">
+      <button class="btn ghost" id="upgradeCloseBtn" type="button">Close</button>
+      <button class="btn" id="upgradeGoBtn" type="button">See plans</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
