@@ -109,6 +109,45 @@ body.light{
     .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 
     .beginner .advanced-only { display:none !important; }
+/* ================================
+   BEGINNER MODE LOCKS
+================================ */
+
+/* Hide QR print in Beginner */
+.beginner #btnPrintQR {
+  display: none !important;
+}
+
+/* Hide inventory tab button */
+.beginner #tabBtnInv {
+  display: none !important;
+}
+
+/* Hide inventory open buttons */
+.beginner #openInventoryBtn,
+.beginner #addToInventoryBtn,
+.beginner #btnAddInvFromQR {
+  display: none !important;
+}
+
+/* Hide full Inventory tab content */
+.beginner #tabInv {
+  display: none !important;
+}
+
+/* Hide thermal label printing */
+.beginner #labelPrintCard {
+  display: none !important;
+}
+
+/* Hide electricity + machine cost */
+.beginner #powerKW,
+.beginner #elecRate,
+.beginner #printerPrice,
+.beginner #printerLifeHours,
+.beginner #maintenancePerHr {
+  display: none !important;
+}
 
     #appRoot.light{
       --bg:#f3f4f6;
