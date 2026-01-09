@@ -3394,14 +3394,7 @@ saveSettings(settings);
 
       const beginnerDefault = (typeof settings.beginnerMode === "boolean") ? settings.beginnerMode : true;
       $("beginnerMode").checked = beginnerDefault;
-      // ✅ Tier is master: override beginnerMode on load
-const t0 = ($("tierSelect")?.value || "beginner").toLowerCase();
-const isPro0 = (t0 === "pro");
 
-$("beginnerMode").checked = !isPro0;
-settings.beginnerMode = !isPro0;
-saveSettings(settings);
-applyBeginnerModeUI(!isPro0);
 
       applyBeginnerModeUI(beginnerDefault);
       $("beginnerMode").addEventListener("change", (e) => {
