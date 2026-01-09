@@ -1,0 +1,3230 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>3D Print Price Calculator</title>
+  <meta name="theme-color" content="#111827" />
+  <style>
+    :root { --bg:#0b1220; --card:#111827; --text:#e5e7eb; --muted:#9ca3af; --line:#1f2937; --accent:#22c55e; --warn:#f59e0b; --danger:#ef4444; }
+    *{ box-sizing:border-box; }
+    body{
+  margin:0;
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  background:#0b1220; /* simple fallback */
+  color:var(--text);
+}
+body.light{
+  background: #f3f4f6;
+  color: #111827;
+}
+
+    .wrap{ max-width:1200px; margin:0 auto; padding:18px; }
+   /* Theme background should live on #appRoot (because #appRoot.light changes variables) */
+#appRoot{
+  min-height: 100vh;
+  background: radial-gradient(1200px 800px at 10% 10%, #0f1a33 0%, var(--bg) 55%);
+}
+
+/* Light mode background */
+#appRoot.light{
+  background: radial-gradient(1200px 800px at 10% 10%, #ffffff 0%, var(--bg) 55%);
+}
+ h1{ font-size:20px; margin:6px 0 2px; }
+    p.sub{ margin:0 0 16px; color:var(--muted); font-size:13px; line-height:1.35; }
+    .grid{ display:grid; grid-template-columns: 1.25fr .75fr; gap:14px; }
+    @media (max-width: 1100px){ .grid{ grid-template-columns:1fr; } }
+    .card{
+      background: rgba(17,24,39,.9);
+      border:1px solid var(--line);
+      border-radius:14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      padding:14px;
+    }
+    .sec-title{ display:flex; justify-content:space-between; align-items:baseline; margin:0 0 8px; gap:10px; }
+    .sec-title h2{ font-size:14px; margin:0; }
+    .sec-title span{ color:var(--muted); font-size:12px; }
+    .fields{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    @media (max-width: 640px){ .fields{ grid-template-columns:1fr; } }
+    label{ display:block; font-size:12px; color:var(--muted); margin:0 0 6px; }
+    input, select, textarea{
+      width:100%; padding:10px 10px;
+      border-radius:10px; border:1px solid var(--line);
+      background:#0b1020; color:var(--text);
+      outline:none;
+    }
+    textarea{ min-height:76px; resize:vertical; }
+    input:focus, select:focus, textarea:focus{ border-color:#334155; box-shadow: 0 0 0 3px rgba(34,197,94,.12); }
+    input::placeholder, textarea::placeholder{ color: rgba(156,163,175,.7); }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .btns{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
+    button{
+      border:0; border-radius:12px; padding:10px 12px; cursor:pointer; font-weight:700;
+      background:var(--accent); color:#08210f;
+    }
+    button.secondary{ background:#0b1020; color:var(--text); border:1px solid var(--line); font-weight:600; }
+    button.warn{ background: rgba(245,158,11,.15); border:1px solid rgba(245,158,11,.4); color:#ffedd5; }
+    button.danger{ background: rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.35); color:#fee2e2; }
+    .note{ color:var(--muted); font-size:12px; margin-top:8px; line-height:1.35; }
+    .breakdown{ margin-top:8px; border-top:1px dashed var(--line); padding-top:10px; }
+    .line-item{ display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(31,41,55,.5); gap:10px; }
+    .line-item:last-child{ border-bottom:0; }
+    .k{ color:var(--muted); font-size:13px; }
+    .v{ font-variant-numeric: tabular-nums; text-align:right; }
+    .total{
+      display:flex; justify-content:space-between; align-items:center;
+      margin-top:10px; padding:10px 12px; border-radius:12px;
+      background: rgba(34,197,94,.10); border:1px solid rgba(34,197,94,.35);
+      gap:10px;
+    }
+    .total .k{ color:#bbf7d0; }
+    .total .v{ font-size:18px; font-weight:900; }
+    .tiny{ font-size:11px; color:var(--muted); margin-top:8px; line-height:1.35; }
+    .pill{
+      display:inline-flex; gap:6px; align-items:center; padding:6px 10px; border-radius:999px;
+      background:#0b1020; border:1px solid var(--line); color:var(--muted); font-size:12px;
+    }
+    .divider{ margin:12px 0; border-top:1px solid rgba(31,41,55,.7); }
+    .toggle{
+      display:flex; gap:8px; align-items:center; color:var(--muted); font-size:12px;
+      user-select:none;
+    }
+    .toggle input{ width:auto; }
+    .jobs{ display:flex; flex-direction:column; gap:10px; }
+    .jobcard{
+      border:1px solid rgba(31,41,55,.8);
+      background:#0b1020;
+      border-radius:12px;
+      padding:10px;
+    }
+    .jobhead{
+      display:flex; justify-content:space-between; gap:10px; align-items:flex-start;
+      margin-bottom:8px;
+    }
+    .jobtitle{ font-weight:800; font-size:13px; }
+    .jobmeta{ color:var(--muted); font-size:11px; line-height:1.3; }
+    .jobactions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .jobactions button{ padding:8px 10px; border-radius:10px; font-weight:700; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .beginner .advanced-only { display:none !important; }
+
+    #appRoot.light{
+      --bg:#f3f4f6;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --accent:#22c55e;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+    }
+    #appRoot.light .card{
+    background: #ffffff;
+
+      box-shadow: 0 10px 30px rgba(0,0,0,.10);
+    }
+    #appRoot.light input, #appRoot.light select, #appRoot.light textarea{
+      background:#ffffff;
+      color:var(--text);
+    }
+    #appRoot.light button.secondary{ background:#ffffff; }
+    #appRoot.light .jobcard{ background:#ffffff; border-color:#e5e7eb; }
+
+    #appRoot.light .pill{ background:#ffffff; color:#111827; border-color:#d1d5db; }
+    #appRoot.light .toggle{ color:#374151; }
+    #appRoot.light label{ color:#374151; }
+    #appRoot.light .k{ color:#374151; }
+    #appRoot.light .note,
+    #appRoot.light .tiny,
+    #appRoot.light .sec-title span,
+    #appRoot.light .jobmeta{ color:#4b5563; }
+    #appRoot.light button{ color:#08210f; }
+    #appRoot.light button.secondary{ color:#111827; border-color:#d1d5db; }
+    #appRoot.light button.warn{ color:#7c2d12; }
+    #appRoot.light button.danger{ color:#7f1d1d; }
+    #appRoot.light .total .k{ color:#14532d; }
+
+    .langSelect{
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#0b1020;
+      color:var(--text);
+      font-weight:700;
+    }
+    #appRoot.light .langSelect{
+      background:#ffffff;
+      color:#111827;
+      border-color:#d1d5db;
+    }
+
+    /* ---------- Tabs ---------- */
+    .tabs{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin: 10px 0 14px;
+      flex-wrap:wrap;
+    }
+    .tabbtn{
+      border:1px solid var(--line);
+      background:#0b1020;
+      color:var(--text);
+      font-weight:800;
+      border-radius:999px;
+      padding:8px 12px;
+      cursor:pointer;
+    }
+    .tabbtn.active{
+      background: rgba(34,197,94,.14);
+      border-color: rgba(34,197,94,.45);
+      color: #bbf7d0;
+    }
+    #appRoot.light .tabbtn{
+      background:#ffffff;
+      color:#111827;
+      border-color:#d1d5db;
+    }
+    #appRoot.light .tabbtn.active{
+      background: rgba(34,197,94,.12);
+      border-color: rgba(34,197,94,.35);
+      color:#14532d;
+    }
+
+    /* Inventory list */
+    .invList{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+    .invItem{
+      border:1px solid rgba(31,41,55,.8);
+      background:#0b1020;
+      border-radius:12px;
+      padding:10px;
+    }
+    #appRoot.light .invItem{ background:#ffffff; border-color:#e5e7eb; }
+    .invHead{
+      display:flex; justify-content:space-between; gap:10px; align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .invTitle{ font-weight:900; font-size:13px; }
+    .invMeta{ color:var(--muted); font-size:11px; line-height:1.3; }
+    .invActions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .invActions button{ padding:8px 10px; border-radius:10px; font-weight:800; }
+     </style>
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+
+<!-- Icons -->
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+
+<!-- iOS PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="3D Print Price Calculator">
+
+<!-- Helps Safari know your site supports light/dark -->
+<meta name="color-scheme" content="dark light">
+
+</head>
+<body>
+  <div class="wrap" id="appRoot">
+    <div class="row" style="justify-content:space-between; align-items:flex-end;">
+      <div>
+        <h1 data-i18n="appTitle">3D Print Price Calculator</h1>
+        <p class="sub" data-i18n="subTitle">
+          Beginner Mode keeps it simple. Light Mode gives a brighter look. Both settings are remembered.
+        </p>
+      </div>
+
+      <div class="row" style="gap:14px; justify-content:flex-end; align-items:center; margin-bottom:6px;">
+        <label class="toggle" style="margin:0;">
+          <span class="pill" data-i18n="languageLabel">Language</span>
+          <select id="langSelect" class="langSelect" aria-label="Language">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+          </select>
+        </label>
+
+        <label class="toggle" style="margin:0;">
+          <input id="lightMode" type="checkbox" />
+          <b data-i18n="lightMode">Light Mode</b>
+        </label>
+
+        <label class="toggle" style="margin:0;">
+          <input id="beginnerMode" type="checkbox" />
+          <b data-i18n="beginnerMode">Beginner Mode</b>
+        </label>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs" role="tablist" aria-label="App tabs">
+      <button id="tabBtnCalc" class="tabbtn active" type="button" data-tab="calc" data-i18n="tab_calculator">Calculator</button>
+      <button id="tabBtnInv" class="tabbtn" type="button" data-tab="inv" data-i18n="tab_inventory">Inventory</button>
+    </div>
+
+    <!-- Calculator Tab -->
+    <section id="tabCalc">
+        <!-- ✅ QR Item (Step 1) -->
+  <div class="card" id="qrItemCard" style="margin-bottom:14px;">
+    <div class="sec-title">
+      <h2>QR Item</h2>
+      <span class="pill">Generate price tag QR</span>
+    </div>
+
+    <div class="fields">
+      <div>
+        <label>Item name</label>
+        <input id="qrItemName" type="text" placeholder="e.g., Wire Spider Keychain" />
+      </div>
+
+      <div>
+        <label>Price ($)</label>
+        <input id="qrItemPrice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="e.g., 12.00" />
+      </div>
+    </div>
+
+    <div class="btns">
+      <button id="btnMakeQR" type="button">Generate QR Code</button>
+      <button id="btnAddInvFromQR" class="secondary" type="button">Add to Inventory</button>
+      <button id="btnClearQR" class="secondary" type="button">Clear</button>
+      <button id="btnPrintQR" class="secondary" type="button">Print QR</button>
+
+    </div>
+
+    <div class="row" style="gap:14px; align-items:flex-start; margin-top:10px;">
+      <div id="qrPreview"
+        style="width:220px; height:220px; display:grid; place-items:center; border-radius:16px; border:1px dashed var(--line); background:#0b1020;">
+      </div>
+
+      <div style="flex:1; min-width:220px;">
+        <div class="note" id="qrHint">Enter an item name + price, then generate a QR.</div>
+        <div class="tiny" id="qrTextOut"></div>
+      </div>
+    </div>
+  </div>
+  <!-- ✅ END QR Item -->
+
+      <div class="grid">
+        <div class="card">
+
+          <div class="advanced-only">
+            <div class="sec-title">
+              <h2 data-i18n="presetsTitle">Presets (optional)</h2>
+              <span class="pill" data-i18n="nonForcing">Non-forcing</span>
+            </div>
+
+            <div class="fields">
+              <div>
+                <label data-i18n="printerPreset">Printer preset</label>
+                <select id="printerPreset"></select>
+              </div>
+              <div class="row" style="align-self:end;">
+                <button id="applyPrinterBtn" class="secondary" type="button" data-i18n="applyPrinter">Apply printer</button>
+              </div>
+
+              <div>
+                <label data-i18n="filamentPreset">Filament preset</label>
+                <select id="filamentPreset"></select>
+              </div>
+              <div class="row" style="align-self:end;">
+                <button id="applyFilamentBtn" class="secondary" type="button" data-i18n="applyFilament">Apply filament</button>
+              </div>
+
+              <div>
+                <label data-i18n="platformPreset">Platform preset</label>
+                <select id="platformPreset"></select>
+              </div>
+              <div class="row" style="align-self:end;">
+                <button id="applyPlatformBtn" class="secondary" type="button" data-i18n="applyPlatform">Apply platform</button>
+              </div>
+            </div>
+
+            <div class="row" style="margin-top:10px; justify-content:space-between;">
+              <label class="toggle">
+                <input id="applyEmptyOnly" type="checkbox" checked />
+                <span data-i18n="applyEmptyOnly">Apply presets to <b>empty fields only</b></span>
+              </label>
+
+              <label class="toggle">
+                <input id="autoLoadDefaults" type="checkbox" checked />
+                <span data-i18n="autoLoadDefaults">Auto-load saved defaults</span>
+              </label>
+            </div>
+
+            <div class="note" data-i18n-html="printerPresetNote">
+              Printer preset can fill <b>power</b>, <b>price</b>, <b>lifetime hours</b>, and <b>maintenance</b>. You can always edit them.
+            </div>
+
+            <div class="btns">
+              <button id="saveDefaultsBtn" class="secondary" type="button" data-i18n="saveDefaults">Save defaults</button>
+              <button id="loadDefaultsBtn" class="secondary" type="button" data-i18n="loadDefaults">Load defaults</button>
+              <button id="clearDefaultsBtn" class="danger" type="button" data-i18n="clearDefaults">Clear saved defaults</button>
+            </div>
+
+            <div class="divider"></div>
+          </div>
+
+          <div class="sec-title">
+            <h2 data-i18n="jobInputs">Job inputs</h2>
+            <span class="pill" data-i18n="updatesAsYouType">Updates as you type</span>
+          </div>
+
+          <div class="fields">
+            <div>
+              <label data-i18n="quantity">Quantity</label>
+              <input id="quantity" type="number" min="1" step="1" data-i18n-placeholder="ph_quantity" placeholder="e.g., 10" />
+            </div>
+
+            <div class="row" style="align-self:end; justify-content:flex-start;">
+              <label class="toggle" style="margin:0;">
+                <input id="laborPerUnit" type="checkbox" />
+                <span data-i18n="laborPerUnit">Labor minutes are per unit</span>
+              </label>
+            </div>
+
+            <div>
+              <label data-i18n="bulkDiscountPct">Bulk discount (%) — applies to batch total</label>
+              <input id="bulkDiscountPct" type="number" min="0" step="0.1" data-i18n-placeholder="ph_bulkDiscountPct" placeholder="e.g., 5" />
+            </div>
+
+            <div>
+              <label data-i18n="printHours">Print time (hours) — per unit</label>
+              <input id="printHours" type="number" min="0" step="0.01" data-i18n-placeholder="ph_printHours" placeholder="From slicer (e.g., 6)" />
+            </div>
+
+            <div>
+              <label data-i18n="gramsUsed">Filament used (grams) — per unit</label>
+              <input id="gramsUsed" type="number" min="0" step="1" data-i18n-placeholder="ph_gramsUsed" placeholder="From slicer (e.g., 100)" />
+            </div>
+
+            <div>
+              <label data-i18n="spoolPrice">Spool price ($)</label>
+              <input id="spoolPrice" type="number" min="0" step="0.01" data-i18n-placeholder="ph_spoolPrice" placeholder="e.g., 20" />
+            </div>
+
+            <div>
+              <label data-i18n="spoolWeight">Spool weight (grams)</label>
+              <input id="spoolWeight" type="number" min="1" step="1" data-i18n-placeholder="ph_spoolWeight" placeholder="Usually 1000" />
+            </div>
+
+            <div>
+              <label data-i18n="wastePct">Waste factor (%)</label>
+              <input id="wastePct" type="number" min="0" step="0.1" data-i18n-placeholder="ph_wastePct" placeholder="e.g., 5" />
+            </div>
+
+            <div>
+              <label data-i18n="packagingCost">Packaging & Shipping ($) — per unit</label>
+             <input id="packagingCost" type="number" min="0" step="0.01" data-i18n-placeholder="ph_packagingCost" placeholder="e.g., 0.75" />
+            </div>
+
+            <div>
+              <label data-i18n="consumablesCost">Consumables cost ($) — per unit</label>
+              <input id="consumablesCost" type="number" min="0" step="0.01" data-i18n-placeholder="ph_consumablesCost" placeholder="e.g., 0.50" />
+            </div>
+
+            <div class="advanced-only">
+              <label data-i18n="powerKW">Power draw (kW)</label>
+              <input id="powerKW" type="number" min="0" step="0.001" data-i18n-placeholder="ph_powerKW" placeholder="e.g., 0.115" />
+            </div>
+
+            <div class="advanced-only">
+              <label data-i18n="elecRate">Electricity rate ($/kWh)</label>
+              <input id="elecRate" type="number" min="0" step="0.001" data-i18n-placeholder="ph_elecRate" placeholder="e.g., 0.146" />
+            </div>
+
+            <div>
+              <label data-i18n="laborRate">Labor rate ($/hr)</label>
+              <input id="laborRate" type="number" min="0" step="0.01" data-i18n-placeholder="ph_laborRate" placeholder="e.g., 40" />
+            </div>
+
+            <div>
+              <label data-i18n="laborMin">Active labor (minutes)</label>
+              <input id="laborMin" type="number" min="0" step="1" data-i18n-placeholder="ph_laborMin" placeholder="e.g., 35" />
+            </div>
+
+            <div>
+              <label data-i18n="overheadPct">Overhead (%)</label>
+              <input id="overheadPct" type="number" min="0" step="0.1" data-i18n-placeholder="ph_overheadPct" placeholder="e.g., 10" />
+            </div>
+
+            <div>
+              <label data-i18n="profitPct">Profit margin (%)</label>
+              <input id="profitPct" type="number" min="0" step="0.1" data-i18n-placeholder="ph_profitPct" placeholder="e.g., 15" />
+            </div>
+
+            <div class="advanced-only">
+              <label data-i18n="minFee">Minimum job fee ($)</label>
+              <input id="minFee" type="number" min="0" step="0.01" data-i18n-placeholder="ph_minFee" placeholder="e.g., 25" />
+            </div>
+          </div>
+
+          <div class="note" data-i18n-html="batchNote">
+            Batch note: Quantity multiplies <b>print time, filament, packaging, consumables</b>. Labor can be total or per unit (checkbox).
+          </div>
+
+          <div class="note" data-i18n-html="bulkNote">
+            Bulk discount applies to the <b>batch total</b> (before platform fees). It will not drop below <b>your total cost</b>.
+          </div>
+         <!-- =========================
+     CUSTOM ORDER (ADVANCED)
+========================= -->
+<div class="advanced-only">
+  <div class="divider"></div>
+
+  <div class="sec-title">
+    <h2 data-i18n="customTitle">Custom order</h2>
+    <span class="pill" data-i18n="customPill">Extra charge</span>
+  </div>
+
+  <label class="toggle" style="margin:0 0 10px 0;">
+    <input id="isCustom" type="checkbox" />
+    <span data-i18n="customToggle">Enable custom surcharge</span>
+  </label>
+
+  <div id="customFields" style="display:none;">
+    <div class="fields">
+      <div>
+        <label data-i18n="customPctLabel">Custom surcharge (%)</label>
+        <input id="customPct" type="number" min="0" step="0.5" value="15" inputmode="decimal" />
+      </div>
+
+      <div class="row" style="align-self:end; gap:8px; flex-wrap:wrap;">
+        <button type="button" class="secondary" id="customPresetLight" data-i18n="customLight">Light +10%</button>
+        <button type="button" class="secondary" id="customPresetMed" data-i18n="customMed">Medium +15%</button>
+        <button type="button" class="secondary" id="customPresetHeavy" data-i18n="customHeavy">Heavy +25%</button>
+      </div>
+    </div>
+
+    <div class="note" data-i18n="customNote">
+      Covers extra time, revisions, communication, and risk for custom work.
+    </div>
+  </div>
+</div>
+
+          <div class="advanced-only">
+            <div class="divider"></div>
+
+            <div class="sec-title">
+              <h2 data-i18n="machineDepTitle">Machine depreciation</h2>
+              <span class="pill" data-i18n="addsMachineCost">Adds machine cost</span>
+            </div>
+
+            <div class="fields">
+              <div>
+                <label data-i18n="printerPrice">Printer price ($)</label>
+                <input id="printerPrice" type="number" min="0" step="0.01" data-i18n-placeholder="ph_printerPrice" placeholder="e.g., 2200" />
+              </div>
+              <div>
+                <label data-i18n="printerLifeHours">Printer lifetime (hours)</label>
+                <input id="printerLifeHours" type="number" min="0" step="1" data-i18n-placeholder="ph_printerLifeHours" placeholder="e.g., 7000" />
+              </div>
+              <div>
+                <label data-i18n="maintenancePerHr">Maintenance ($/hr) (optional)</label>
+                <input id="maintenancePerHr" type="number" min="0" step="0.01" data-i18n-placeholder="ph_maintenancePerHr" placeholder="e.g., 0.10" />
+              </div>
+              <div>
+                <label data-i18n="deprPerHr">Calculated depreciation ($/hr)</label>
+                <input id="deprPerHrDisplay" type="text" class="mono" disabled placeholder="—" />
+              </div>
+            </div>
+          </div>
+
+          <div class="advanced-only">
+            <div class="divider"></div>
+
+            <div class="sec-title">
+              <h2 data-i18n="platformFeesTitle">Platform fees (optional)</h2>
+              <span class="pill" data-i18n="grossUpSupported">Gross-up supported</span>
+            </div>
+
+            <div class="row" style="margin-bottom:8px;">
+              <label class="toggle">
+                <input id="includePlatformFees" type="checkbox" />
+                <span data-i18n="includePlatformFees">Include platform fees in final price</span>
+              </label>
+            </div>
+
+            <div class="fields">
+              <div>
+                <label data-i18n="platformFeePct">Fee %</label>
+                <input id="platformFeePct" type="number" min="0" step="0.01" data-i18n-placeholder="ph_platformFeePct" placeholder="e.g., 6.5" />
+              </div>
+              <div>
+                <label data-i18n="platformFixedFee">Fixed fee ($)</label>
+                <input id="platformFixedFee" type="number" min="0" step="0.01" data-i18n-placeholder="ph_platformFixedFee" placeholder="e.g., 0.25" />
+              </div>
+              <div>
+                <label data-i18n="platformListingFee">Listing fee ($)</label>
+                <input id="platformListingFee" type="number" min="0" step="0.01" data-i18n-placeholder="ph_platformListingFee" placeholder="e.g., 0.20" />
+              </div>
+              <div>
+                <label data-i18n="platformNotes">Platform notes</label>
+                <input id="platformNotes" type="text" data-i18n-placeholder="ph_platformNotes" placeholder="Optional" />
+              </div>
+            </div>
+          </div>
+
+          <div class="advanced-only">
+            <div class="divider"></div>
+
+            <div class="sec-title">
+              <h2 data-i18n="jobToolsTitle">Job tools</h2>
+              <span class="pill" data-i18n="saveExport">Save + export</span>
+            </div>
+
+            <div class="fields">
+              <div>
+                <label data-i18n="jobName">Job name (optional)</label>
+                <input id="jobName" type="text" data-i18n-placeholder="ph_jobName" placeholder="e.g., Dragon keychain batch" />
+              </div>
+              <div>
+                <label data-i18n="jobNotes">Notes (optional)</label>
+                <input id="jobNotes" type="text" data-i18n-placeholder="ph_jobNotes" placeholder="e.g., Black, 2 copies" />
+              </div>
+            </div>
+
+            <div class="btns">
+              <button id="saveJobBtn" type="button" data-i18n="saveJob">Save job to history</button>
+              <button id="exportJobsBtn" class="secondary" type="button" data-i18n="exportJobs">Export jobs JSON</button>
+              <button id="importJobsBtn" class="secondary" type="button" data-i18n="importJobs">Import jobs JSON</button>
+              <button id="clearJobsBtn" class="danger" type="button" data-i18n="clearJobs">Clear job history</button>
+            </div>
+          </div>
+
+          <div class="btns">
+            <button id="resetBtn" class="warn" type="button" data-i18n="resetAll">Reset (clear all)</button>
+            <button id="copyBtn" class="secondary" type="button" data-i18n="copyQuote">Copy quote</button>
+          </div>
+
+          <div class="note advanced-only">
+            <span data-i18n="grossUpNote">Platform fee uses gross-up:</span>
+            <span class="mono" style="color:#cbd5e1;">gross = (target + fixed + listing) / (1 - fee%)</span>
+          </div>
+
+          <div class="note" id="beginnerHint" data-i18n-html="beginnerTip">
+            Beginner tip: Use slicer values for <b>Print time</b> and <b>Filament grams</b>. Toggle Advanced later for electricity, margins, fees, and depreciation.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sec-title">
+            <h2 data-i18n="estimateTitle">Estimate</h2>
+            <span id="status" class="tiny" data-i18n="status_enterValues">Enter values to calculate</span>
+          </div>
+
+          <div class="breakdown" id="breakdown"></div>
+
+          <div class="total">
+            <div class="k" data-i18n="finalPriceTotal">Final Price (total)</div>
+            <div class="v" id="finalPrice">$0.00</div>
+          </div>
+
+          <div class="total" style="margin-top:10px; background: rgba(59,130,246,.10); border:1px solid rgba(59,130,246,.35);">
+            <div class="k" data-i18n="finalPriceUnit">Final Price (per unit)</div>
+            <div class="v" id="finalPricePerUnit">$0.00</div>
+          </div>
+
+          <!-- Add to Inventory -->
+          <div class="btns" style="margin-top:12px;">
+            <button id="addToInventoryBtn" class="secondary" type="button" data-i18n="inv_addFromCalc">Add to Inventory</button>
+           <button id="makeQRFromCalcBtn" class="secondary" type="button">Generate QR from this quote</button>
+
+            <button id="openInventoryBtn" class="secondary" type="button" data-i18n="inv_openInventory">Open Inventory</button>
+          </div>
+          <div class="tiny" data-i18n="inv_hint">
+            Tip: Add items you make often, then adjust quantity as you print/sell.
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="sec-title">
+            <h2 data-i18n="profitView">Profit view</h2>
+            <span class="pill" data-i18n="simple">Simple</span>
+          </div>
+
+          <div class="breakdown" id="profitBox"></div>
+
+          <div class="divider advanced-only"></div>
+
+          <div class="advanced-only">
+            <div class="sec-title">
+              <h2 data-i18n="jobHistoryTitle">Job history</h2>
+              <span class="pill" id="jobsCountPill">0 saved</span>
+            </div>
+
+            <div class="jobs" id="jobsList">
+              <div class="note" data-i18n="noSavedJobs">No saved jobs yet. Use “Save job to history”.</div>
+            </div>
+
+            <div class="tiny" data-i18n="storedLocally">Stored locally in your browser (localStorage).</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Inventory Tab -->
+    <section id="tabInv" style="display:none;">
+      <div class="card">
+        <div class="sec-title">
+          <h2 data-i18n="inv_title">Inventory</h2>
+          <span class="pill" id="invCountPill">0 items</span>
+        </div>
+<div class="divider"></div>
+
+<!-- ✅ Thermal Label Printing -->
+<div class="card" id="labelPrintCard" style="margin-top:12px;">
+  <div class="sec-title">
+    <h2 data-i18n="labels_title">Print Labels</h2>
+    <span class="pill" data-i18n="labels_pill">Thermal (58/80mm)</span>
+  </div>
+
+  <div class="fields">
+    <div>
+      <label data-i18n="labels_preset">Label size</label>
+      <select id="labelPreset">
+        <option value="58">58mm</option>
+        <option value="80">80mm</option>
+      </select>
+    </div>
+
+    <div>
+      <div>
+  <label data-i18n="labels_printerType">Printer type</label>
+  <select id="labelPrinterType">
+    <option value="thermal" data-i18n="labels_printerThermal">Thermal (58 / 80 mm)</option>
+    <option value="sheet" data-i18n="labels_printerSheet">Sheet (Letter / A4)</option>
+  </select>
+</div>
+
+      <label data-i18n="labels_qrSize">QR size</label>
+      <input id="labelQRSize" type="range" min="120" max="260" step="10" value="180" />
+      <div class="tiny" data-i18n="labels_qrHint">Smaller for tiny tags, bigger for easier scanning.</div>
+    </div>
+
+    <div>
+      <label data-i18n="labels_fontSize">Text size</label>
+      <input id="labelFontSize" type="range" min="10" max="20" step="1" value="13" />
+    </div>
+
+    <div class="row" style="align-self:end;">
+      <label class="toggle" style="margin:0;">
+        <input id="labelShowPrice" type="checkbox" checked />
+        <span data-i18n="labels_showPrice">Show price</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="btns">
+    <button id="btnPrintSelectedLabels" type="button" data-i18n="labels_printSelected">Print Selected</button>
+    <button id="btnClearLabelSelection" class="secondary" type="button" data-i18n="labels_clearSelection">Clear selection</button>
+  </div>
+
+  <div class="tiny" data-i18n="labels_tip">
+    Tip: In the list below, check items you want to print, and set “Print Qty” for each.
+  </div>
+</div>
+<!-- ✅ End Thermal Label Printing -->
+
+        <div class="row" style="align-items:flex-end;">
+          <div style="flex:1; min-width:220px;">
+            <label data-i18n="inv_searchLabel">Search</label>
+            <input id="invSearch" type="text" data-i18n-placeholder="inv_ph_search" placeholder="Search items..." />
+          </div>
+
+          <div class="row" style="gap:8px;">
+            <button id="invExportBtn" class="secondary" type="button" data-i18n="inv_export">Export</button>
+            <button id="invImportBtn" class="secondary" type="button" data-i18n="inv_import">Import</button>
+            <input id="invImportFile" type="file" accept="application/json" style="display:none;" />
+            <button id="invClearBtn" class="danger" type="button" data-i18n="inv_clear">Clear</button>
+          </div>
+        </div>
+
+        <div class="tiny" data-i18n="inv_storageNote">Inventory is saved locally in your browser (localStorage). Export a backup if needed.</div>
+
+        <div class="invList" id="invList"></div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    // ================================
+// ✅ QR ITEM (Step 2: button wiring)
+// ================================
+function clearQRUI(){
+  const box = $("qrPreview");
+  const hint = $("qrHint");
+  const out  = $("qrTextOut");
+  if (box) box.innerHTML = "";
+  if (hint) hint.textContent = "Enter an item name + price, then generate a QR.";
+  if (out) out.textContent = "";
+}
+
+function appBaseURL(){
+  // Uses your current page URL, but removes any ?query stuff
+  return window.location.origin + window.location.pathname.replace(/index\.html$/i, "");
+}
+function makeQRFromCalculator(){
+  const r = calc();
+  if (!r){
+    alert("Enter some values first so the calculator has a price.");
+    return;
+  }
+
+  // Use per-unit price (best for price tags)
+  const price = r.finalPerUnit;
+
+  // Try Job Name first; if empty, ask
+  let name = ($("jobName")?.value || "").trim();
+  if (!name){
+    name = (prompt("Item name for QR:", "") || "").trim();
+  }
+  if (!name){
+    alert("Please enter an item name.");
+    return;
+  }
+
+  // Fill QR inputs
+  $("qrItemName").value = name;
+  $("qrItemPrice").value = Number(price).toFixed(2);
+
+  // Generate QR
+  makeQR();
+
+  // Scroll to QR so you can see it
+  $("qrItemCard")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function printQR(){
+  const name = ($("qrItemName")?.value || "").trim();
+  const priceRaw = ($("qrItemPrice")?.value || "").trim();
+  const qrBox = $("qrPreview");
+
+  if (!name || !priceRaw){
+    alert("Generate a QR first (enter name + price).");
+    return;
+  }
+  if (!qrBox || !qrBox.innerHTML.trim()){
+    alert("Generate the QR code first.");
+    return;
+  }
+
+  const qrImg = qrBox.querySelector("img");
+  const qrCanvas = qrBox.querySelector("canvas");
+
+  let dataUrl = "";
+  if (qrImg && qrImg.src) dataUrl = qrImg.src;
+  else if (qrCanvas && qrCanvas.toDataURL) dataUrl = qrCanvas.toDataURL("image/png");
+
+  if (!dataUrl){
+    alert("QR image not found. Click Generate QR Code first.");
+    return;
+  }
+
+  const esc = (s) => String(s)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
+
+  const priceNum = Number(priceRaw);
+  const priceText = Number.isFinite(priceNum) ? priceNum.toFixed(2) : priceRaw;
+saveDraftToSession();
+
+  // ✅ Same-tab printable page (more reliable on iPhone)
+  // Save current scroll position so "Back" feels smooth
+  const scrollY = window.scrollY || 0;
+  sessionStorage.setItem("qrPrintScrollY", String(scrollY));
+sessionStorage.setItem("qrPrintReturnURL", window.location.href);
+
+
+
+  const lang = currentLang();
+  const btnPrint = (lang === "es") ? "Imprimir" : "Print";
+  const btnBack  = (lang === "es") ? "Volver" : "Back";
+  const helpTxt  = (lang === "es")
+    ? "Si no aparece la impresión, usa Compartir → Imprimir, o abre en Safari."
+    : "If print doesn’t appear, use Share → Print, or open in Safari.";
+
+  const html = `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Print QR</title>
+  <style>
+    :root{
+      --label-w: 2.625in;
+      --label-h: 1in;
+      --pad: 0.06in;
+      --qr: 0.85in;
+    }
+    @page{ size: var(--label-w) var(--label-h); margin: 0; }
+    html,body{ height:100%; }
+    body{ margin:0; font-family: Arial, sans-serif; }
+    .toolbar{
+      padding:10px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      background:#f3f4f6;
+      border-bottom:1px solid #e5e7eb;
+    }
+    .toolbar button{
+      padding:10px 12px;
+      border-radius:10px;
+      color:#111827;
+      border:1px solid #111827;
+      background:#ffffff;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .help{
+      font-size:12px;
+      color:#374151;
+      text-align:center;
+      padding:8px 12px;
+    }
+    .labelWrap{
+      display:flex;
+      justify-content:center;
+      padding:14px;
+    }
+    .label{
+      width: var(--label-w);
+      height: var(--label-h);
+      box-sizing: border-box;
+      padding: var(--pad);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.08in;
+      align-items: center;
+      border:1px dashed #9ca3af;
+    }
+    .name{ font-size: 11pt; font-weight: 700; line-height: 1.05; max-height: 2.2em; overflow: hidden; }
+    .price{ font-size: 14pt; font-weight: 900; margin-top: 0.04in; }
+    img{ width: var(--qr); height: var(--qr); display:block; }
+    
+    /* ✅ When saving as PDF on phone, hide UI so label fits perfectly */
+      @media print{
+      .toolbar,.help{ display:none; }
+      .labelWrap{ padding:0; }
+      .label{ border:0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button onclick="window.print()">${esc(btnPrint)}</button>
+    <button onclick="window.__goBackToApp()">${esc(btnBack)}</button>
+  </div>
+  <div class="help">${esc(helpTxt)}</div>
+
+  <div class="labelWrap">
+    <div class="label">
+      <div>
+        <div class="name">${esc(name)}</div>
+        <div class="price">$${esc(priceText)}</div>
+      </div>
+      <img src="${dataUrl}" alt="QR">
+    </div>
+  </div>
+
+  <script>
+    window.__goBackToApp = () => {
+ sessionStorage.setItem("qrJustReturnedFromPrint", "1");
+const returnURL = sessionStorage.getItem("qrPrintReturnURL") || "./";
+  window.location.href = returnURL;
+};
+
+
+    // Try auto-print (works on laptop; sometimes blocked on iPhone PWA)
+    window.onload = () => {
+      setTimeout(() => { try{ window.print(); }catch(e){} }, 300);
+    };
+  </scr` + `ipt>
+
+</body>
+</html>`;
+
+  document.open();
+  document.write(html);
+  document.close();
+}
+
+    function makeQR(){
+  const name = ($("qrItemName")?.value || "").trim();
+  const priceRaw = ($("qrItemPrice")?.value || "").trim();
+
+  if (!name){
+    alert("Please enter an item name.");
+    $("qrItemName")?.focus();
+    return;
+  }
+
+  if (!priceRaw || Number(priceRaw) <= 0){
+    alert("Please enter a valid price.");
+    $("qrItemPrice")?.focus();
+    return;
+  }
+
+  const price = Number(priceRaw).toFixed(2);
+
+  const url = new URL(appBaseURL());
+
+  url.searchParams.set("item", name);
+  url.searchParams.set("price", price);
+
+  const box = $("qrPreview");
+  box.innerHTML = "";
+
+  new QRCode(box, {
+    text: url.toString(),
+    width: 200,
+    height: 200,
+    correctLevel: QRCode.CorrectLevel.M
+  });
+
+  $("qrHint").textContent = "Scan the QR to view item and price.";
+  $("qrTextOut").textContent = url.toString();
+}
+
+    // ---------- i18n ----------
+    const I18N = {
+      en: {
+        appTitle: "3D Print Price Calculator",
+        subTitle: "Beginner Mode keeps it simple. Light Mode gives a brighter look. Both settings are remembered.",
+        languageLabel: "Language",
+        lightMode: "Light Mode",
+        beginnerMode: "Beginner Mode",
+        labels_title: "Print Labels",
+labels_pill: "Multi-print on one sheet",
+labels_preset: "Label preset",
+labels_qrSize: "QR size",
+labels_printerType: "Printer type",
+labels_printerThermal: "Thermal (58 / 80 mm)",
+labels_printerSheet: "Sheet (Letter / A4)",
+labels_select: "Select",
+labels_printQty: "Print Qty",      
+labels_qrHint: "Smaller for tiny tags, bigger for easier scanning.",
+labels_showPrice: "Show price",
+labels_printSelected: "Print Selected",
+labels_clearSelection: "Clear selection",
+labels_tip: "Tip: In the list below, check items you want to print, and set “Print Qty” for each.",
+labels_select: "Select",
+labels_printQty: "Print Qty",
+labels_fontSize: "Text size",
+labels_select: "Select",
+labels_printQty: "Print Qty",
+
+        tab_calculator: "Calculator",
+        tab_inventory: "Inventory",
+
+        inv_title: "Inventory",
+        inv_searchLabel: "Search",
+        inv_ph_search: "Search items...",
+        inv_export: "Export",
+        inv_import: "Import",
+        inv_clear: "Clear",
+        inv_storageNote: "Inventory is saved locally in your browser (localStorage). Export a backup if needed.",
+        inv_addFromCalc: "Add to Inventory",
+        inv_openInventory: "Open Inventory",
+        inv_hint: "Tip: Add items you make often, then adjust quantity as you print/sell.",
+
+        inv_item_meta: (qty, unit, total) => `Qty: ${qty} • Unit: ${unit} • Total: ${total}`,
+        inv_btn_minus: "-1",
+        inv_btn_plus: "+1",
+        inv_btn_sold: "Sold",
+        inv_btn_delete: "Delete",
+        inv_btn_duplicate: "Duplicate",
+
+        inv_empty: "No inventory items yet. Add one from the Calculator.",
+        inv_confirm_delete: "Delete this item?",
+        inv_confirm_clear: "Clear ALL inventory items? This cannot be undone.",
+        inv_prompt_name: "Item name:",
+        inv_status_added: "Added to inventory ✅",
+        inv_status_imported: (n) => `Imported ${n} items ✅`,
+        inv_status_import_failed: "Import failed",
+        inv_status_cleared: "Inventory cleared",
+
+        presetsTitle: "Presets (optional)",
+        nonForcing: "Non-forcing",
+        printerPreset: "Printer preset",
+        filamentPreset: "Filament preset",
+        platformPreset: "Platform preset",
+        applyPrinter: "Apply printer",
+        applyFilament: "Apply filament",
+        applyPlatform: "Apply platform",
+        applyEmptyOnly: "Apply presets to <b>empty fields only</b>",
+        autoLoadDefaults: "Auto-load saved defaults",
+        printerPresetNote: "Printer preset can fill <b>power</b>, <b>price</b>, <b>lifetime hours</b>, and <b>maintenance</b>. You can always edit them.",
+        saveDefaults: "Save defaults",
+        loadDefaults: "Load defaults",
+        clearDefaults: "Clear saved defaults",
+
+        jobInputs: "Job inputs",
+        updatesAsYouType: "Updates as you type",
+
+        quantity: "Quantity",
+        laborPerUnit: "Labor minutes are per unit",
+        bulkDiscountPct: "Bulk discount (%) — applies to batch total",
+        batchNote: "Batch note: Quantity multiplies <b>print time, filament, packaging, consumables</b>. Labor can be total or per unit (checkbox).",
+        bulkNote: "Bulk discount applies to the <b>batch total</b> (before platform fees). It will not drop below <b>your total cost</b>.",
+
+        printHours: "Print time (hours) — per unit",
+        gramsUsed: "Filament used (grams) — per unit",
+        spoolPrice: "Spool price ($)",
+        spoolWeight: "Spool weight (grams)",
+        wastePct: "Waste factor (%)",
+
+        packagingCost: "Packaging & Shipping ($) — per unit",
+        consumablesCost: "Consumables cost ($) — per unit",
+
+        powerKW: "Power draw (kW)",
+        elecRate: "Electricity rate ($/kWh)",
+        laborRate: "Labor rate ($/hr)",
+        laborMin: "Active labor (minutes)",
+        overheadPct: "Overhead (%)",
+        profitPct: "Profit margin (%)",
+        minFee: "Minimum job fee ($)",
+
+        machineDepTitle: "Machine depreciation",
+        addsMachineCost: "Adds machine cost",
+        printerPrice: "Printer price ($)",
+        printerLifeHours: "Printer lifetime (hours)",
+        maintenancePerHr: "Maintenance ($/hr) (optional)",
+        deprPerHr: "Calculated depreciation ($/hr)",
+
+        platformFeesTitle: "Platform fees (optional)",
+        grossUpSupported: "Gross-up supported",
+        includePlatformFees: "Include platform fees in final price",
+        platformFeePct: "Fee %",
+        platformFixedFee: "Fixed fee ($)",
+        platformListingFee: "Listing fee ($)",
+        platformNotes: "Platform notes",
+        grossUpNote: "Platform fee uses gross-up:",
+
+        jobToolsTitle: "Job tools",
+        saveExport: "Save + export",
+        jobName: "Job name (optional)",
+        jobNotes: "Notes (optional)",
+        saveJob: "Save job to history",
+        exportJobs: "Export jobs JSON",
+        importJobs: "Import jobs JSON",
+        clearJobs: "Clear job history",
+
+        resetAll: "Reset (clear all)",
+        copyQuote: "Copy quote",
+        beginnerTip: "Beginner tip: Use slicer values for <b>Print time</b> and <b>Filament grams</b>. Toggle Advanced later for electricity, margins, fees, and depreciation.",
+
+        estimateTitle: "Estimate",
+        finalPriceTotal: "Final Price (total)",
+        finalPriceUnit: "Final Price (per unit)",
+
+        profitView: "Profit view",
+        simple: "Simple",
+        pv_totalCost: "Total cost (materials + labor + machine + overhead)",
+        pv_profitDollars: "Profit ($)",
+        pv_profitPct: "Profit (%)",
+        pv_costPerUnit: "Cost (per unit)",
+        pv_profitPerUnit: "Profit (per unit)",
+
+        jobHistoryTitle: "Job history",
+        noSavedJobs: "No saved jobs yet. Use “Save job to history”.",
+        storedLocally: "Stored locally in your browser (localStorage).",
+
+        // placeholders
+        ph_quantity: "e.g., 10",
+        ph_bulkDiscountPct: "e.g., 5",
+        ph_printHours: "From slicer (e.g., 6)",
+        ph_gramsUsed: "From slicer (e.g., 100)",
+        ph_spoolPrice: "e.g., 20",
+        ph_spoolWeight: "Usually 1000",
+        ph_wastePct: "e.g., 5",
+        ph_packagingCost: "e.g., 0.75",
+        ph_consumablesCost: "e.g., 0.50",
+        ph_powerKW: "e.g., 0.115",
+        ph_elecRate: "e.g., 0.146",
+        ph_laborRate: "e.g., 40",
+        ph_laborMin: "e.g., 35",
+        ph_overheadPct: "e.g., 10",
+        ph_profitPct: "e.g., 15",
+        ph_minFee: "e.g., 25",
+        ph_printerPrice: "e.g., 2200",
+        ph_printerLifeHours: "e.g., 7000",
+        ph_maintenancePerHr: "e.g., 0.10",
+        ph_platformFeePct: "e.g., 6.5",
+        ph_platformFixedFee: "e.g., 0.25",
+        ph_platformListingFee: "e.g., 0.20",
+        ph_platformNotes: "Optional",
+        ph_jobName: "e.g., Dragon keychain batch",
+        ph_jobNotes: "e.g., Black, 2 copies",
+
+        // status/messages
+        status_enterValues: "Enter values to calculate",
+        status_updated: "Updated",
+        status_presetEmptyOnly: "Preset applied (empty fields only)",
+        status_presetOverwrite: "Preset applied (overwrote fields)",
+        status_defaultsSaved: "Defaults saved ✅",
+        status_defaultsLoaded: "Defaults loaded ✅",
+        status_noDefaults: "No saved defaults found",
+        status_defaultsCleared: "Saved defaults cleared",
+        status_jobSaved: "Job saved ✅",
+        status_jobLoaded: "Loaded job from history",
+        status_jobDeleted: "Deleted job",
+        status_jobsCleared: "Job history cleared",
+        status_copyOk: "Copied ✅",
+        status_importFailed: "Import failed",
+        status_importOk: (n) => `Imported ${n} jobs ✅`,
+        status_exportOk: "Jobs JSON copied ✅",
+        status_platformPctTooHigh: "Platform fee % too high; used fixed fees only",
+        status_beginnerOn: "Beginner Mode ON",
+        status_beginnerOff: "Beginner Mode OFF",
+        status_lightOn: "Light Mode ON",
+        status_darkOn: "Dark Mode ON",
+
+        // prompts/alerts
+        alert_enterValuesFirst: "Enter some values first, then copy the quote.",
+        alert_exportCopied: "Jobs JSON copied. Paste into a text file for backup.",
+        prompt_copyThisJSON: "Copy this JSON:",
+        prompt_pasteJobsJSON: "Paste exported jobs JSON here:",
+        alert_importFailed: "Import failed: invalid JSON.",
+        confirm_clearJobs: "Clear ALL job history? This cannot be undone.",
+
+        // breakdown
+        bd_qty: "Quantity",
+        bd_timeTotal: "Total print time",
+        bd_material: "Material (incl. waste)",
+        bd_packaging: "Packaging",
+        bd_consumables: "Consumables",
+        bd_electricity: "Electricity",
+        bd_machine: "Machine (depr + maint)",
+        bd_labor: "Active labor",
+        bd_base: "Base subtotal",
+        bd_overhead: "Overhead",
+        bd_profit: "Profit (target)",
+        bd_target: "Target before platform fees",
+        bd_bulkDiscount: "Bulk discount",
+        bd_targetAfterDiscount: "Target after discount",
+        bd_platform: "Platform fees added",
+        bd_minApplied: "Minimum fee applied?",
+
+        // jobs
+        jobs_savedPill: (n) => `${n} saved`,
+        jobs_meta: (final, qty, time, filament) => `Final: ${final} • Qty: ${qty} • Time: ${time}h • Filament: ${filament}g`,
+        jobs_untitled: "Untitled job",
+        btn_load: "Load",
+        btn_delete: "Delete",
+
+        // presets labels
+        preset_selectPrinter: "— Select a printer —",
+        preset_selectFilament: "— Select a filament —",
+        preset_selectPlatform: "— Select a platform —",
+
+        // Printer names (EN)
+        p_bambu_a1mini: "Bambu Lab A1 mini",
+        p_bambu_a1: "Bambu Lab A1",
+        p_bambu_p1p: "Bambu Lab P1P",
+        p_bambu_p1s: "Bambu Lab P1S",
+        p_bambu_x1c: "Bambu Lab X1 Carbon",
+
+        p_prusa_mini: "Prusa MINI+",
+        p_prusa_mk3s: "Prusa MK3S+",
+        p_prusa_mk4: "Prusa MK4 / MK4S",
+        p_prusa_xl: "Prusa XL",
+
+        p_creality_ender3v2: "Creality Ender 3 V2",
+        p_creality_ender3s1: "Creality Ender 3 S1 / S1 Pro",
+        p_creality_ender5: "Creality Ender 5 / Ender 5 S1",
+        p_creality_k1: "Creality K1",
+        p_creality_k1max: "Creality K1 Max",
+
+        p_elegoo_n3p: "Elegoo Neptune 3 Pro",
+        p_elegoo_n4p: "Elegoo Neptune 4 Pro",
+        p_elegoo_n4max: "Elegoo Neptune 4 Max",
+
+        p_anycubic_kobra2: "Anycubic Kobra 2",
+        p_anycubic_kobra2pro: "Anycubic Kobra 2 Pro",
+        p_anycubic_kobra2max: "Anycubic Kobra 2 Max",
+
+        p_qidi_xplus3: "QIDI X-Plus 3",
+        p_qidi_xmax3: "QIDI X-Max 3",
+
+        p_generic_budget: "Generic: Budget open-frame FDM",
+        p_generic_enclosed: "Generic: Enclosed FDM",
+        p_generic_corexy: "Generic: CoreXY fast printer",
+        p_generic_voron24: "Voron 2.4 (generic profile)",
+
+        // Filament
+        preset_pla: "PLA",
+        preset_petg: "PETG",
+        preset_abs: "ABS",
+        preset_tpu: "TPU",
+        preset_nylon: "Nylon",
+
+        // Platforms
+        preset_etsy: "Etsy (starter)",
+        preset_amazon: "Amazon (starter)",
+        preset_shopify: "Shopify (starter)",
+        preset_ebay: "eBay (starter)",
+        preset_adjust: "Adjust if needed",
+        preset_varies: "Varies by category",
+        preset_typical: "Typical card processing"
+      },
+      es: {
+        appTitle: "Calculadora de Precio para Impresión 3D",
+        subTitle: "Modo Principiante lo mantiene simple. Modo Claro da una apariencia más brillante. Se recuerdan tus ajustes.",
+        languageLabel: "Idioma",
+        lightMode: "Modo Claro",
+        beginnerMode: "Modo Principiante",
+labels_title: "Imprimir etiquetas",
+labels_pill: "Varias en una hoja",
+labels_preset: "Tamaño de etiqueta",
+labels_select: "Seleccionar",
+labels_printerType: "Tipo de impresora",
+labels_printerThermal: "Térmica (58 / 80 mm)",
+labels_printerSheet: "Hoja (Carta / A4)",
+labels_printQty: "Cant. a imprimir",
+labels_qrSize: "Tamaño del QR",
+labels_qrHint: "Más pequeño para etiquetas chicas, más grande para escanear fácil.",
+labels_showPrice: "Mostrar precio",
+labels_printSelected: "Imprimir seleccionados",
+labels_clearSelection: "Borrar selección",
+labels_tip: "Tip: En la lista de abajo, marca lo que quieres imprimir y cambia la “Cant. a imprimir”.",
+labels_select: "Seleccionar",
+labels_printQty: "Cant. a imprimir",
+labels_fontSize: "Tamaño del texto",
+labels_select: "Seleccionar",
+labels_printQty: "Cant. a imprimir",
+
+        tab_calculator: "Calculadora",
+        tab_inventory: "Inventario",
+
+        inv_title: "Inventario",
+        inv_searchLabel: "Buscar",
+        inv_ph_search: "Buscar artículos...",
+        inv_export: "Exportar",
+        inv_import: "Importar",
+        inv_clear: "Borrar",
+        inv_storageNote: "El inventario se guarda localmente en tu navegador (localStorage). Exporta un respaldo si lo necesitas.",
+        inv_addFromCalc: "Agregar al inventario",
+        inv_openInventory: "Abrir inventario",
+        inv_hint: "Tip: Guarda artículos que haces seguido y ajusta cantidad cuando imprimes/vendes.",
+
+        inv_item_meta: (qty, unit, total) => `Cant: ${qty} • Unidad: ${unit} • Total: ${total}`,
+        inv_btn_minus: "-1",
+        inv_btn_plus: "+1",
+        inv_btn_sold: "Vendido",
+        inv_btn_delete: "Eliminar",
+        inv_btn_duplicate: "Duplicar",
+
+        inv_empty: "Aún no hay artículos. Agrega uno desde la Calculadora.",
+        inv_confirm_delete: "¿Eliminar este artículo?",
+        inv_confirm_clear: "¿Borrar TODO el inventario? Esto no se puede deshacer.",
+        inv_prompt_name: "Nombre del artículo:",
+        inv_status_added: "Agregado ✅",
+        inv_status_imported: (n) => `Importados ${n} artículos ✅`,
+        inv_status_import_failed: "Falló la importación",
+        inv_status_cleared: "Inventario borrado",
+
+        presetsTitle: "Preajustes (opcional)",
+        nonForcing: "No obliga valores",
+        printerPreset: "Preajuste de impresora",
+        filamentPreset: "Preajuste de filamento",
+        platformPreset: "Preajuste de plataforma",
+        applyPrinter: "Aplicar impresora",
+        applyFilament: "Aplicar filamento",
+        applyPlatform: "Aplicar plataforma",
+        applyEmptyOnly: "Aplicar preajustes solo a <b>campos vacíos</b>",
+        autoLoadDefaults: "Cargar valores guardados automáticamente",
+        printerPresetNote: "El preajuste puede llenar <b>consumo</b>, <b>precio</b>, <b>vida útil</b> y <b>mantenimiento</b>. Puedes editar todo.",
+        saveDefaults: "Guardar valores",
+        loadDefaults: "Cargar valores",
+        clearDefaults: "Borrar valores guardados",
+
+        jobInputs: "Datos del trabajo",
+        updatesAsYouType: "Se actualiza al escribir",
+
+        quantity: "Cantidad",
+        laborPerUnit: "Mano de obra (minutos) por unidad",
+        bulkDiscountPct: "Descuento por volumen (%) — se aplica al total",
+        batchNote: "Nota: La cantidad multiplica <b>tiempo, filamento, empaque, consumibles</b>. La mano de obra puede ser total o por unidad (casilla).",
+        bulkNote: "El descuento se aplica al <b>total del lote</b> (antes de comisiones). No bajará de <b>tu costo total</b>.",
+
+        printHours: "Tiempo de impresión (horas) — por unidad",
+        gramsUsed: "Filamento usado (gramos) — por unidad",
+        spoolPrice: "Precio del rollo ($)",
+        spoolWeight: "Peso del rollo (gramos)",
+        wastePct: "Desperdicio (%)",
+
+        
+       packagingCost: "Empaque y Envío ($) — por unidad",
+       consumablesCost: "Consumibles ($) — por unidad",
+
+        powerKW: "Consumo (kW)",
+        elecRate: "Costo de electricidad ($/kWh)",
+        laborRate: "Mano de obra ($/hr)",
+        laborMin: "Mano de obra activa (minutos)",
+        overheadPct: "Gastos generales (%)",
+        profitPct: "Margen de ganancia (%)",
+        minFee: "Mínimo por trabajo ($)",
+
+        machineDepTitle: "Depreciación de la máquina",
+        addsMachineCost: "Agrega costo de máquina",
+        printerPrice: "Precio de la impresora ($)",
+        printerLifeHours: "Vida útil (horas)",
+        maintenancePerHr: "Mantenimiento ($/hr) (opcional)",
+        deprPerHr: "Depreciación calculada ($/hr)",
+
+        platformFeesTitle: "Comisiones de plataforma (opcional)",
+        grossUpSupported: "Ajuste por comisión",
+        includePlatformFees: "Incluir comisiones en el precio final",
+        platformFeePct: "Comisión %",
+        platformFixedFee: "Tarifa fija ($)",
+        platformListingFee: "Tarifa de listado ($)",
+        platformNotes: "Notas de plataforma",
+        grossUpNote: "Comisión con ajuste:",
+
+        jobToolsTitle: "Herramientas",
+        saveExport: "Guardar + exportar",
+        jobName: "Nombre del trabajo (opcional)",
+        jobNotes: "Notas (opcional)",
+        saveJob: "Guardar en historial",
+        exportJobs: "Exportar historial JSON",
+        importJobs: "Importar historial JSON",
+        clearJobs: "Borrar historial",
+
+        resetAll: "Reiniciar (borrar todo)",
+        copyQuote: "Copiar cotización",
+        beginnerTip: "Tip: Usa los valores del slicer para <b>Tiempo de impresión</b> y <b>Gramos de filamento</b>. Activa Avanzado después para electricidad, márgenes, comisiones y depreciación.",
+
+        estimateTitle: "Estimación",
+        finalPriceTotal: "Precio Final (total)",
+        finalPriceUnit: "Precio Final (por unidad)",
+
+        profitView: "Vista de ganancia",
+        simple: "Simple",
+        pv_totalCost: "Costo total (materiales + mano de obra + máquina + gastos)",
+        pv_profitDollars: "Ganancia ($)",
+        pv_profitPct: "Ganancia (%)",
+        pv_costPerUnit: "Costo (por unidad)",
+        pv_profitPerUnit: "Ganancia (por unidad)",
+
+        jobHistoryTitle: "Historial",
+        noSavedJobs: "Aún no hay trabajos guardados. Usa “Guardar en historial”.",
+        storedLocally: "Guardado localmente en tu navegador (localStorage).",
+
+        // placeholders
+        ph_quantity: "ej., 10",
+        ph_bulkDiscountPct: "ej., 5",
+        ph_printHours: "Del slicer (ej., 6)",
+        ph_gramsUsed: "Del slicer (ej., 100)",
+        ph_spoolPrice: "ej., 20",
+        ph_spoolWeight: "Normalmente 1000",
+        ph_wastePct: "ej., 5",
+        ph_packagingCost: "ej., 0.75",
+        ph_consumablesCost: "ej., 0.50",
+        ph_powerKW: "ej., 0.115",
+        ph_elecRate: "ej., 0.146",
+        ph_laborRate: "ej., 40",
+        ph_laborMin: "ej., 35",
+        ph_overheadPct: "ej., 10",
+        ph_profitPct: "ej., 15",
+        ph_minFee: "ej., 25",
+        ph_printerPrice: "ej., 2200",
+        ph_printerLifeHours: "ej., 7000",
+        ph_maintenancePerHr: "ej., 0.10",
+        ph_platformFeePct: "ej., 6.5",
+        ph_platformFixedFee: "ej., 0.25",
+        ph_platformListingFee: "ej., 0.20",
+        ph_platformNotes: "Opcional",
+        ph_jobName: "ej., Lote de llaveros",
+        ph_jobNotes: "ej., Negro, 2 piezas",
+
+        // status/messages
+        status_enterValues: "Ingresa valores para calcular",
+        status_updated: "Actualizado",
+        status_presetEmptyOnly: "Preajuste aplicado (solo campos vacíos)",
+        status_presetOverwrite: "Preajuste aplicado (sobrescribió campos)",
+        status_defaultsSaved: "Valores guardados ✅",
+        status_defaultsLoaded: "Valores cargados ✅",
+        status_noDefaults: "No hay valores guardados",
+        status_defaultsCleared: "Valores guardados borrados",
+        status_jobSaved: "Trabajo guardado ✅",
+        status_jobLoaded: "Trabajo cargado del historial",
+        status_jobDeleted: "Trabajo eliminado",
+        status_jobsCleared: "Historial borrado",
+        status_copyOk: "Copiado ✅",
+        status_importFailed: "Falló la importación",
+        status_importOk: (n) => `Importados ${n} trabajos ✅`,
+        status_exportOk: "JSON del historial copiado ✅",
+        status_platformPctTooHigh: "Comisión % demasiado alta; se usó solo tarifa fija",
+        status_beginnerOn: "Modo Principiante ACTIVADO",
+        status_beginnerOff: "Modo Principiante DESACTIVADO",
+        status_lightOn: "Modo Claro ACTIVADO",
+        status_darkOn: "Modo Oscuro ACTIVADO",
+
+        // prompts/alerts
+        alert_enterValuesFirst: "Primero ingresa valores y luego copia la cotización.",
+        alert_exportCopied: "JSON copiado. Pégalo en un archivo de texto para respaldarlo.",
+        prompt_copyThisJSON: "Copia este JSON:",
+        prompt_pasteJobsJSON: "Pega aquí el JSON exportado:",
+        alert_importFailed: "Falló la importación: JSON inválido.",
+        confirm_clearJobs: "¿Borrar TODO el historial? Esto no se puede deshacer.",
+
+        // breakdown
+        bd_qty: "Cantidad",
+        bd_timeTotal: "Tiempo total de impresión",
+        bd_material: "Material (incl. desperdicio)",
+        bd_packaging: "Empaque",
+        bd_consumables: "Consumibles",
+        bd_electricity: "Electricidad",
+        bd_machine: "Máquina (depr + mant)",
+        bd_labor: "Mano de obra activa",
+        bd_base: "Subtotal base",
+        bd_overhead: "Gastos generales",
+        bd_profit: "Ganancia (objetivo)",
+        bd_target: "Objetivo antes de comisiones",
+        bd_bulkDiscount: "Descuento por volumen",
+        bd_targetAfterDiscount: "Objetivo después del descuento",
+        bd_platform: "Comisiones agregadas",
+        bd_minApplied: "¿Aplicó mínimo?",
+
+        // jobs
+        jobs_savedPill: (n) => `${n} guardados`,
+        jobs_meta: (final, qty, time, filament) => `Final: ${final} • Cant: ${qty} • Tiempo: ${time}h • Filamento: ${filament}g`,
+        jobs_untitled: "Trabajo sin nombre",
+        btn_load: "Cargar",
+        btn_delete: "Eliminar",
+
+        // presets labels
+        preset_selectPrinter: "— Selecciona una impresora —",
+        preset_selectFilament: "— Selecciona un filamento —",
+        preset_selectPlatform: "— Selecciona una plataforma —",
+
+        // Printer names (ES)
+        p_bambu_a1mini: "Bambu Lab A1 mini",
+        p_bambu_a1: "Bambu Lab A1",
+        p_bambu_p1p: "Bambu Lab P1P",
+        p_bambu_p1s: "Bambu Lab P1S",
+        p_bambu_x1c: "Bambu Lab X1 Carbon",
+
+        p_prusa_mini: "Prusa MINI+",
+        p_prusa_mk3s: "Prusa MK3S+",
+        p_prusa_mk4: "Prusa MK4 / MK4S",
+        p_prusa_xl: "Prusa XL",
+
+        p_creality_ender3v2: "Creality Ender 3 V2",
+        p_creality_ender3s1: "Creality Ender 3 S1 / S1 Pro",
+        p_creality_ender5: "Creality Ender 5 / Ender 5 S1",
+        p_creality_k1: "Creality K1",
+        p_creality_k1max: "Creality K1 Max",
+
+        p_elegoo_n3p: "Elegoo Neptune 3 Pro",
+        p_elegoo_n4p: "Elegoo Neptune 4 Pro",
+        p_elegoo_n4max: "Elegoo Neptune 4 Max",
+
+        p_anycubic_kobra2: "Anycubic Kobra 2",
+        p_anycubic_kobra2pro: "Anycubic Kobra 2 Pro",
+        p_anycubic_kobra2max: "Anycubic Kobra 2 Max",
+
+        p_qidi_xplus3: "QIDI X-Plus 3",
+        p_qidi_xmax3: "QIDI X-Max 3",
+
+        p_generic_budget: "Genérico: FDM económico abierto",
+        p_generic_enclosed: "Genérico: FDM cerrado",
+        p_generic_corexy: "Genérico: CoreXY rápido",
+        p_generic_voron24: "Voron 2.4 (perfil genérico)",
+
+        // Filament
+        preset_pla: "PLA",
+        preset_petg: "PETG",
+        preset_abs: "ABS",
+        preset_tpu: "TPU",
+        preset_nylon: "Nylon",
+
+        // Platforms
+        preset_etsy: "Etsy (base)",
+        preset_amazon: "Amazon (base)",
+        preset_shopify: "Shopify (base)",
+        preset_ebay: "eBay (base)",
+        preset_adjust: "Ajusta si es necesario",
+        preset_varies: "Varía por categoría",
+        preset_typical: "Procesamiento típico de tarjeta"
+      }
+    };
+
+    function currentLang(){
+      const settings = loadJSON(LS_SETTINGS_KEY, { lang:"en" });
+      return (settings && (settings.lang === "es" || settings.lang === "en")) ? settings.lang : "en";
+    }
+
+    function t(key){
+      const lang = currentLang();
+      const pack = I18N[lang] || I18N.en;
+      return pack[key] ?? (I18N.en[key] ?? key);
+    }
+
+    function setLang(lang){
+      const s = loadJSON(LS_SETTINGS_KEY, {});
+      s.lang = (lang === "es") ? "es" : "en";
+      saveJSON(LS_SETTINGS_KEY, s);
+    }
+
+    // ---------------- Printer profiles ----------------
+    const PRINTER_PRESETS = {
+      none: { nameKey: "preset_selectPrinter", fields: {} },
+
+      bambu_a1mini: { nameKey: "p_bambu_a1mini", fields: { powerKW: 0.085, printerPrice: 299, printerLifeHours: 7000, maintenancePerHr: 0.05 } },
+      bambu_a1:     { nameKey: "p_bambu_a1",     fields: { powerKW: 0.110, printerPrice: 399, printerLifeHours: 7000, maintenancePerHr: 0.06 } },
+      bambu_p1p:    { nameKey: "p_bambu_p1p",    fields: { powerKW: 0.120, printerPrice: 599, printerLifeHours: 8000, maintenancePerHr: 0.07 } },
+      bambu_p1s:    { nameKey: "p_bambu_p1s",    fields: { powerKW: 0.115, printerPrice: 699, printerLifeHours: 8000, maintenancePerHr: 0.07 } },
+      bambu_x1c:    { nameKey: "p_bambu_x1c",    fields: { powerKW: 0.150, printerPrice: 1199, printerLifeHours: 9000, maintenancePerHr: 0.09 } },
+
+      prusa_mini:   { nameKey: "p_prusa_mini",   fields: { powerKW: 0.090, printerPrice: 459, printerLifeHours: 9000, maintenancePerHr: 0.06 } },
+      prusa_mk3s:   { nameKey: "p_prusa_mk3s",   fields: { powerKW: 0.120, printerPrice: 749, printerLifeHours: 10000, maintenancePerHr: 0.07 } },
+      prusa_mk4:    { nameKey: "p_prusa_mk4",    fields: { powerKW: 0.130, printerPrice: 1099, printerLifeHours: 11000, maintenancePerHr: 0.08 } },
+      prusa_xl:     { nameKey: "p_prusa_xl",     fields: { powerKW: 0.220, printerPrice: 2499, printerLifeHours: 12000, maintenancePerHr: 0.12 } },
+
+      ender3v2:     { nameKey: "p_creality_ender3v2", fields: { powerKW: 0.120, printerPrice: 279, printerLifeHours: 6000, maintenancePerHr: 0.06 } },
+      ender3s1:     { nameKey: "p_creality_ender3s1", fields: { powerKW: 0.140, printerPrice: 399, printerLifeHours: 6500, maintenancePerHr: 0.07 } },
+      ender5:       { nameKey: "p_creality_ender5",   fields: { powerKW: 0.160, printerPrice: 499, printerLifeHours: 7000, maintenancePerHr: 0.08 } },
+      creality_k1:  { nameKey: "p_creality_k1",       fields: { powerKW: 0.250, printerPrice: 599, printerLifeHours: 8000, maintenancePerHr: 0.09 } },
+      creality_k1max:{nameKey: "p_creality_k1max",    fields: { powerKW: 0.300, printerPrice: 899, printerLifeHours: 8500, maintenancePerHr: 0.10 } },
+
+      neptune3pro:  { nameKey: "p_elegoo_n3p",   fields: { powerKW: 0.120, printerPrice: 299, printerLifeHours: 6500, maintenancePerHr: 0.06 } },
+      neptune4pro:  { nameKey: "p_elegoo_n4p",   fields: { powerKW: 0.150, printerPrice: 329, printerLifeHours: 7000, maintenancePerHr: 0.07 } },
+      neptune4max:  { nameKey: "p_elegoo_n4max", fields: { powerKW: 0.200, printerPrice: 479, printerLifeHours: 7500, maintenancePerHr: 0.08 } },
+
+      kobra2:       { nameKey: "p_anycubic_kobra2",    fields: { powerKW: 0.140, printerPrice: 269, printerLifeHours: 6500, maintenancePerHr: 0.06 } },
+      kobra2pro:    { nameKey: "p_anycubic_kobra2pro", fields: { powerKW: 0.160, printerPrice: 329, printerLifeHours: 7000, maintenancePerHr: 0.07 } },
+      kobra2max:    { nameKey: "p_anycubic_kobra2max", fields: { powerKW: 0.220, printerPrice: 469, printerLifeHours: 7500, maintenancePerHr: 0.08 } },
+
+      qidi_xplus3:  { nameKey: "p_qidi_xplus3",  fields: { powerKW: 0.250, printerPrice: 699, printerLifeHours: 8500, maintenancePerHr: 0.10 } },
+      qidi_xmax3:   { nameKey: "p_qidi_xmax3",   fields: { powerKW: 0.320, printerPrice: 999, printerLifeHours: 9000, maintenancePerHr: 0.12 } },
+
+      generic_budget:{ nameKey: "p_generic_budget", fields: { powerKW: 0.120, printerPrice: 250, printerLifeHours: 6000, maintenancePerHr: 0.06 } },
+      generic_enclosed:{nameKey: "p_generic_enclosed", fields: { powerKW: 0.180, printerPrice: 600, printerLifeHours: 8000, maintenancePerHr: 0.08 } },
+      generic_corexy:{ nameKey: "p_generic_corexy", fields: { powerKW: 0.260, printerPrice: 1000, printerLifeHours: 9000, maintenancePerHr: 0.10 } },
+      voron24:      { nameKey: "p_generic_voron24", fields: { powerKW: 0.300, printerPrice: 1500, printerLifeHours: 10000, maintenancePerHr: 0.12 } }
+    };
+
+    const FILAMENT_PRESETS = {
+      none: { nameKey: "preset_selectFilament", fields: {} },
+      pla:  { nameKey: "preset_pla",  fields: { wastePct: 5 } },
+      petg: { nameKey: "preset_petg", fields: { wastePct: 6 } },
+      abs:  { nameKey: "preset_abs",  fields: { wastePct: 7 } },
+      tpu:  { nameKey: "preset_tpu",  fields: { wastePct: 8 } },
+      nylon:{ nameKey: "preset_nylon",fields: { wastePct: 10 } }
+    };
+
+    const PLATFORM_PRESETS = {
+      none: { nameKey: "preset_selectPlatform", fields: {} },
+      etsy:   { nameKey: "preset_etsy",   fields: { platformFeePct: 6.5, platformFixedFee: 0.25, platformListingFee: 0.20, platformNotes: "" } },
+      amazon: { nameKey: "preset_amazon", fields: { platformFeePct: 15.0, platformFixedFee: 0.00, platformListingFee: 0.00, platformNotes: "" } },
+      shopify:{ nameKey: "preset_shopify",fields: { platformFeePct: 2.9, platformFixedFee: 0.30, platformListingFee: 0.00, platformNotes: "" } },
+      ebay:   { nameKey: "preset_ebay",   fields: { platformFeePct: 13.0, platformFixedFee: 0.00, platformListingFee: 0.00, platformNotes: "" } }
+    };
+
+    function localizedPlatformNotes(platformKey){
+      if (platformKey === "etsy") return t("preset_adjust");
+      if (platformKey === "amazon") return t("preset_varies");
+      if (platformKey === "shopify") return t("preset_typical");
+      if (platformKey === "ebay") return t("preset_varies");
+      return "";
+    }
+
+    // Storage keys (kept same to preserve your saved data)
+    const LS_DEFAULTS_KEY = "calc_defaults_v3";
+    const LS_JOBS_KEY = "calc_jobs_v3";
+    const LS_SETTINGS_KEY = "calc_settings_v6";
+
+    // NEW: inventory key
+    const LS_INV_KEY = "calc_inventory_v1";
+const SS_DRAFT_KEY = "qr_draft_state_v1"; // sessionStorage (temporary)
+
+    // Inputs managed
+    const inputIds = [
+      "quantity","bulkDiscountPct","printHours","gramsUsed","spoolPrice","spoolWeight","wastePct",
+      "packagingCost","consumablesCost",
+      "powerKW","elecRate","laborRate","laborMin","overheadPct","profitPct","customPct",
+"minFee",
+      "printerPrice","printerLifeHours","maintenancePerHr",
+      "platformFeePct","platformFixedFee","platformListingFee","platformNotes",
+      "jobName","jobNotes"
+    ];
+    const clearState = Object.fromEntries(inputIds.map(id => [id, ""]));
+
+    function money(n){
+      const v = Number.isFinite(n) ? n : 0;
+      return v.toLocaleString(undefined, { style:"currency", currency:"USD" });
+    }
+
+    function num(id){
+      const el = $(id);
+      if (!el) return 0;
+      const raw = el.value;
+      if (raw === "" || raw === null || raw === undefined) return 0;
+      const v = parseFloat(raw);
+      return Number.isFinite(v) ? v : 0;
+    }
+
+    function intOr1(id){
+      const el = $(id);
+      if (!el) return 1;
+      const raw = el.value;
+      if (raw === "" || raw === null || raw === undefined) return 1;
+      const v = parseInt(raw, 10);
+      return Number.isFinite(v) && v > 0 ? v : 1;
+    }
+
+    function saveJSON(key, obj){ localStorage.setItem(key, JSON.stringify(obj)); }
+    function loadJSON(key, fallback=null){
+      try{
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        return JSON.parse(raw);
+      }catch(e){
+        return fallback;
+      }
+    }
+
+    function setSelectOptions(selectEl, presets){
+      if (!selectEl) return;
+      const current = selectEl.value;
+      selectEl.innerHTML = "";
+      for (const [key, obj] of Object.entries(presets)){
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = t(obj.nameKey);
+        selectEl.appendChild(opt);
+      }
+      selectEl.value = (current && presets[current]) ? current : "none";
+    }
+
+    function refreshAllPresetSelects(){
+      setSelectOptions($("printerPreset"), PRINTER_PRESETS);
+      setSelectOptions($("filamentPreset"), FILAMENT_PRESETS);
+      setSelectOptions($("platformPreset"), PLATFORM_PRESETS);
+    }
+
+    function isEmptyField(id){
+      const el = $(id);
+      if (!el) return true;
+      return el.value === "" || el.value === null || el.value === undefined;
+    }
+
+    function applyFields(fields){
+      const emptyOnly = $("applyEmptyOnly")?.checked ?? true;
+      for (const [id, value] of Object.entries(fields)){
+        if (!$(id)) continue;
+        if (emptyOnly && !isEmptyField(id)) continue;
+        $(id).value = value;
+      }
+      calc();
+      $("status").textContent = emptyOnly ? t("status_presetEmptyOnly") : t("status_presetOverwrite");
+      $("status").dataset.i18nStatusKey = "";
+    }
+
+    function getState(){
+      const state = {};
+      inputIds.forEach(id => state[id] = ($(id) ? $(id).value : ""));
+      state.includePlatformFees = $("includePlatformFees")?.checked ?? false;
+      state.applyEmptyOnly = $("applyEmptyOnly")?.checked ?? true;
+      state.autoLoadDefaults = $("autoLoadDefaults")?.checked ?? true;
+      state.printerPreset = $("printerPreset")?.value ?? "none";
+      state.filamentPreset = $("filamentPreset")?.value ?? "none";
+      state.platformPreset = $("platformPreset")?.value ?? "none";
+      state.laborPerUnit = $("laborPerUnit")?.checked ?? false;
+      return state;
+    }
+
+    function setState(state){
+      inputIds.forEach(id => { if ($(id)) $(id).value = (state && Object.prototype.hasOwnProperty.call(state,id)) ? state[id] : ""; });
+      if ($("includePlatformFees") && typeof state?.includePlatformFees === "boolean") $("includePlatformFees").checked = state.includePlatformFees;
+      if ($("applyEmptyOnly") && typeof state?.applyEmptyOnly === "boolean") $("applyEmptyOnly").checked = state.applyEmptyOnly;
+      if ($("autoLoadDefaults") && typeof state?.autoLoadDefaults === "boolean") $("autoLoadDefaults").checked = state.autoLoadDefaults;
+      if ($("laborPerUnit") && typeof state?.laborPerUnit === "boolean") $("laborPerUnit").checked = state.laborPerUnit;
+      if ($("printerPreset") && state?.printerPreset) $("printerPreset").value = state.printerPreset;
+      if ($("filamentPreset") && state?.filamentPreset) $("filamentPreset").value = state.filamentPreset;
+      if ($("platformPreset") && state?.platformPreset) $("platformPreset").value = state.platformPreset;
+      calc();
+    }
+
+    function setStatusKey(key){
+      const el = $("status");
+      if (!el) return;
+      el.textContent = t(key);
+      el.dataset.i18nStatusKey = key;
+    }
+
+    function renderEmpty(){
+      $("breakdown").innerHTML = `
+        <div class="line-item"><div class="k">${t("bd_qty")}</div><div class="v">1</div></div>
+        <div class="line-item"><div class="k">${t("bd_timeTotal")}</div><div class="v">0.00 h</div></div>
+        <div class="line-item"><div class="k">${t("bd_material")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("bd_packaging")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("bd_consumables")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("bd_electricity")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("bd_machine")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("bd_labor")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("bd_base")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("bd_overhead")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("bd_profit")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("bd_target")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("bd_bulkDiscount")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("bd_targetAfterDiscount")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("bd_platform")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("bd_minApplied")}</div><div class="v">No</div></div>
+      `;
+      $("profitBox").innerHTML = `
+        <div class="line-item"><div class="k">${t("pv_totalCost")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("pv_profitDollars")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("pv_profitPct")}</div><div class="v">0.0%</div></div>
+        <div class="line-item"><div class="k">${t("pv_costPerUnit")}</div><div class="v">$0.00</div></div>
+        <div class="line-item"><div class="k">${t("pv_profitPerUnit")}</div><div class="v">$0.00</div></div>
+      `;
+      $("finalPrice").textContent = "$0.00";
+      $("finalPricePerUnit").textContent = "$0.00";
+      setStatusKey("status_enterValues");
+      if ($("deprPerHrDisplay")) $("deprPerHrDisplay").value = "—";
+    }
+
+    function calcDepreciationPerHr(){
+      const price = num("printerPrice");
+      const life = num("printerLifeHours");
+      if (price <= 0 || life <= 0) return 0;
+      return price / life;
+    }
+
+    function calc(){
+      const includePlatformFees = $("includePlatformFees")?.checked ?? false;
+      const anyInput = inputIds.some(id => ($(id) && $(id).value !== "")) || includePlatformFees;
+      if (!anyInput){
+        renderEmpty();
+        return null;
+      }
+
+      const qty = Math.max(1, intOr1("quantity"));
+
+      // Per-unit inputs
+      const printHoursUnit = num("printHours");
+      const gramsUsedUnit = num("gramsUsed");
+
+      const bulkDiscountPct = Math.max(0, num("bulkDiscountPct")) / 100;
+
+      const spoolPrice = num("spoolPrice");
+      const spoolWeight = Math.max(1, num("spoolWeight"));
+      const wastePct = num("wastePct") / 100;
+
+      const packagingUnit = Math.max(0, num("packagingCost"));
+      const consumablesUnit = Math.max(0, num("consumablesCost"));
+
+      const powerKW = num("powerKW");
+      const elecRate = num("elecRate");
+
+      const laborRate = num("laborRate");
+      const laborMinInput = num("laborMin");
+      const laborPerUnit = $("laborPerUnit")?.checked ?? false;
+
+      const overheadPct = num("overheadPct") / 100;
+      const profitPct = num("profitPct") / 100;
+      const minFee = num("minFee");
+
+      // Totals (batch)
+      const printHours = printHoursUnit * qty;
+      const gramsUsed = gramsUsedUnit * qty;
+      const packaging = packagingUnit * qty;
+      const consumables = consumablesUnit * qty;
+
+      const deprPerHr = calcDepreciationPerHr();
+      const maintPerHr = num("maintenancePerHr");
+      const machineCost = printHours * (Math.max(0, deprPerHr) + Math.max(0, maintPerHr));
+      if ($("deprPerHrDisplay")) $("deprPerHrDisplay").value = deprPerHr > 0 ? money(deprPerHr) + " / hr" : "—";
+
+      const platformFeePct = num("platformFeePct") / 100;
+      const platformFixedFee = num("platformFixedFee");
+      const platformListingFee = num("platformListingFee");
+
+      const costPerGram = spoolPrice / spoolWeight;
+      const effectiveGrams = gramsUsed * (1 + Math.max(0, wastePct));
+      const materialCost = effectiveGrams * costPerGram;
+
+      const electricityCost = printHours * powerKW * elecRate;
+
+      const laborMinTotal = laborPerUnit ? (laborMinInput * qty) : laborMinInput;
+      const laborHours = laborMinTotal / 60;
+      const laborCost = laborHours * laborRate;
+
+      const directCost = materialCost + packaging + consumables + electricityCost + machineCost + laborCost;
+
+      const overheadCost = directCost * Math.max(0, overheadPct);
+      const costWithOverhead = directCost + overheadCost;
+
+      const profitTarget = costWithOverhead * Math.max(0, profitPct);
+      const targetBeforeFees = costWithOverhead + profitTarget;
+
+      const targetWithMin = Math.max(targetBeforeFees, Math.max(0, minFee));
+      const minApplied = targetWithMin > targetBeforeFees;
+
+      // Bulk discount (only meaningful when qty > 1)
+      let bulkDiscountAmt = 0;
+      if (qty > 1 && bulkDiscountPct > 0){
+        bulkDiscountAmt = targetWithMin * bulkDiscountPct;
+      }
+
+      // Discounted target (never below your cost, and never below minFee if you set one)
+      let discountedTarget = targetWithMin - bulkDiscountAmt;
+      const floor = Math.max(costWithOverhead, Math.max(0, minFee));
+      if (discountedTarget < floor) discountedTarget = floor;
+
+      // If we had to floor it, recompute the displayed discount as actual difference
+      bulkDiscountAmt = Math.max(0, targetWithMin - discountedTarget);
+      // ✅ Custom surcharge (adds to the target price)
+const isCustom = $("isCustom")?.checked ?? false;
+const customPct = Math.max(0, num("customPct")) / 100;
+
+let customAdded = 0;
+if (isCustom && customPct > 0){
+  customAdded = discountedTarget * customPct;
+  discountedTarget = discountedTarget + customAdded;
+}
+
+      let final = discountedTarget;
+      let platformAdded = 0;
+
+      if (includePlatformFees){
+        const pct = Math.max(0, platformFeePct);
+        const fixed = Math.max(0, platformFixedFee) + Math.max(0, platformListingFee);
+
+        if (pct >= 0.999){
+          final = discountedTarget + fixed;
+          platformAdded = fixed;
+          setStatusKey("status_platformPctTooHigh");
+        } else {
+          const gross = (discountedTarget + fixed) / (1 - pct);
+          final = gross;
+          platformAdded = gross - discountedTarget;
+        }
+      }
+
+      const totalCost = costWithOverhead + platformAdded; // discount reduces price, not cost
+      const profitDollars = final - totalCost;
+      const profitPctActual = (final > 0) ? (profitDollars / final) : 0;
+
+      const finalPerUnit = final / qty;
+      const costPerUnit = totalCost / qty;
+      const profitPerUnit = profitDollars / qty;
+
+      const breakdown = [
+        ["bd_qty", qty, "qty"],
+        ["bd_timeTotal", printHours, "hours"],
+        ["bd_material", materialCost, "money"],
+        ["bd_packaging", packaging, "money"],
+        ["bd_consumables", consumables, "money"],
+        ["bd_electricity", electricityCost, "money"],
+        ["bd_machine", machineCost, "money"],
+        ["bd_labor", laborCost, "money"],
+        ["bd_base", directCost, "money"],
+        ["bd_overhead", overheadCost, "money"],
+        ["bd_profit", (targetWithMin - costWithOverhead), "money"],
+        ["bd_target", targetWithMin, "money"],
+        ["bd_bulkDiscount", -bulkDiscountAmt, "moneySigned"],
+        ["bd_targetAfterDiscount", discountedTarget, "money"],
+        ["bd_platform", platformAdded, "money"],
+        ["bd_minApplied", minApplied ? 1 : 0, "bool"]
+      ];
+
+      $("breakdown").innerHTML = breakdown.map(([key,v,type]) => {
+        const label = t(key);
+        const lang = currentLang();
+        const yes = (lang === "es") ? "Sí" : "Yes";
+        const no  = (lang === "es") ? "No" : "No";
+        let val = "";
+        if (type === "bool") val = v ? yes : no;
+        else if (type === "hours") val = `${(Number(v)||0).toFixed(2)} h`;
+        else if (type === "qty") val = `${v}`;
+        else if (type === "moneySigned"){
+          const n = Number(v) || 0;
+          const sign = n < 0 ? "-" : "";
+          val = sign + money(Math.abs(n));
+        } else val = money(v);
+        return `<div class="line-item"><div class="k">${label}</div><div class="v">${val}</div></div>`;
+      }).join("");
+
+      $("finalPrice").textContent = money(final);
+      $("finalPricePerUnit").textContent = money(finalPerUnit);
+
+      $("profitBox").innerHTML = `
+        <div class="line-item"><div class="k">${t("pv_totalCost")}</div><div class="v">${money(totalCost)}</div></div>
+        <div class="line-item"><div class="k">${t("pv_profitDollars")}</div><div class="v">${money(profitDollars)}</div></div>
+        <div class="line-item"><div class="k">${t("pv_profitPct")}</div><div class="v">${(profitPctActual*100).toFixed(1)}%</div></div>
+        <div class="line-item"><div class="k">${t("pv_costPerUnit")}</div><div class="v">${money(costPerUnit)}</div></div>
+        <div class="line-item"><div class="k">${t("pv_profitPerUnit")}</div><div class="v">${money(profitPerUnit)}</div></div>
+      `;
+
+      setStatusKey("status_updated");
+
+      return {
+        final, qty, finalPerUnit,
+        totalCost, profitDollars, profitPctActual,
+        printHours, gramsUsed, effectiveGrams,
+        materialCost, packaging, consumables,
+        electricityCost, machineCost, laborCost,
+        overheadCost, targetWithMin, discountedTarget,
+        platformAdded, minApplied, laborMinTotal,
+        bulkDiscountAmt
+      };
+    }
+
+    // Jobs
+    function loadJobs(){ const jobs = loadJSON(LS_JOBS_KEY, []); return Array.isArray(jobs) ? jobs : []; }
+    function saveJobs(jobs){ saveJSON(LS_JOBS_KEY, jobs); renderJobs(); }
+
+    function formatDate(iso){
+      try{ return new Date(iso).toLocaleString(); }
+      catch(e){ return iso; }
+    }
+    function escapeHTML(s){
+      return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+
+    function renderJobs(){
+      const pill = $("jobsCountPill");
+      const list = $("jobsList");
+      if (!pill || !list) return;
+
+      const jobs = loadJobs();
+      pill.textContent = t("jobs_savedPill")(jobs.length);
+
+      if (!jobs.length){
+        list.innerHTML = `<div class="note" data-i18n="noSavedJobs">${t("noSavedJobs")}</div>`;
+        return;
+      }
+
+      list.innerHTML = jobs.slice().reverse().map((job, idxFromEnd) => {
+        const idx = jobs.length - 1 - idxFromEnd;
+        const title = (job.jobName && job.jobName.trim()) ? job.jobName.trim() : t("jobs_untitled");
+        const notes = job.jobNotes ? job.jobNotes : "";
+        const metaLine = t("jobs_meta")(money(job.final), (job.qty || 1), (job.printHoursTotal || 0).toFixed(2), (job.gramsUsedTotal || 0));
+        const meta = `${formatDate(job.ts)} • ${metaLine}`;
+        return `
+          <div class="jobcard">
+            <div class="jobhead">
+              <div>
+                <div class="jobtitle">${escapeHTML(title)}</div>
+                <div class="jobmeta">${escapeHTML(meta)}${notes ? "<br/>" + escapeHTML(notes) : ""}</div>
+              </div>
+              <div class="jobactions">
+                <button class="secondary" type="button" onclick="window.__loadJob(${idx})">${escapeHTML(t("btn_load"))}</button>
+                <button class="danger" type="button" onclick="window.__deleteJob(${idx})">${escapeHTML(t("btn_delete"))}</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    window.__loadJob = (idx) => {
+      const jobs = loadJobs();
+      const job = jobs[idx];
+      if (!job) return;
+      inputIds.forEach(id => { if ($(id) && Object.prototype.hasOwnProperty.call(job, id)) $(id).value = job[id] ?? ""; });
+      if ($("includePlatformFees") && typeof job.includePlatformFees === "boolean") $("includePlatformFees").checked = job.includePlatformFees;
+      if ($("laborPerUnit") && typeof job.laborPerUnit === "boolean") $("laborPerUnit").checked = job.laborPerUnit;
+      setStatusKey("status_jobLoaded");
+      calc();
+    };
+
+    window.__deleteJob = (idx) => {
+      const jobs = loadJobs();
+      if (!jobs[idx]) return;
+      jobs.splice(idx, 1);
+      saveJobs(jobs);
+      setStatusKey("status_jobDeleted");
+    };
+
+    // Defaults
+    function saveDefaults(){
+      const state = getState();
+      state.jobName = "";
+      state.jobNotes = "";
+      saveJSON(LS_DEFAULTS_KEY, state);
+      setStatusKey("status_defaultsSaved");
+    }
+    function loadDefaults(){
+      const saved = loadJSON(LS_DEFAULTS_KEY, null);
+      if (!saved){ setStatusKey("status_noDefaults"); return; }
+      setState(saved);
+      setStatusKey("status_defaultsLoaded");
+    }
+    function clearDefaults(){
+      localStorage.removeItem(LS_DEFAULTS_KEY);
+      setStatusKey("status_defaultsCleared");
+    }
+
+    // Export/Import jobs
+    function exportJobs(){
+      const jobs = loadJobs();
+      const payload = { exportedAt: new Date().toISOString(), version: 9, jobs };
+      const text = JSON.stringify(payload, null, 2);
+      navigator.clipboard.writeText(text).then(() => {
+        setStatusKey("status_exportOk");
+        alert(t("alert_exportCopied"));
+      }).catch(() => {
+        setStatusKey("status_exportOk");
+        prompt(t("prompt_copyThisJSON"), text);
+      });
+    }
+
+    function importJobs(){
+      const pasted = prompt(t("prompt_pasteJobsJSON"));
+      if (!pasted) return;
+      try{
+        const obj = JSON.parse(pasted);
+        const incoming = Array.isArray(obj.jobs) ? obj.jobs : (Array.isArray(obj) ? obj : null);
+        if (!incoming) throw new Error("Invalid format");
+        const jobs = loadJobs();
+        saveJobs(jobs.concat(incoming).filter(Boolean));
+        $("status").textContent = t("status_importOk")(incoming.length);
+        $("status").dataset.i18nStatusKey = "";
+      }catch(e){
+        alert(t("alert_importFailed"));
+        setStatusKey("status_importFailed");
+      }
+    }
+
+    function clearJobs(){
+      if (!confirm(t("confirm_clearJobs"))) return;
+      localStorage.removeItem(LS_JOBS_KEY);
+      renderJobs();
+      setStatusKey("status_jobsCleared");
+    }
+
+    function copyQuote(){
+      const r = calc();
+      if (!r){ alert(t("alert_enterValuesFirst")); return; }
+      const lang = currentLang();
+      const header = (lang === "es") ? "Cotización de Impresión 3D" : "3D Print Quote";
+      const qtyLbl = (lang === "es") ? "Cantidad" : "Quantity";
+      const timeLbl = (lang === "es") ? "Tiempo total" : "Total time";
+      const filLbl = (lang === "es") ? "Filamento total" : "Total filament";
+      const discLbl = (lang === "es") ? "Descuento por volumen" : "Bulk discount";
+      const costLbl = (lang === "es") ? "Costo total" : "Total cost";
+      const profLbl = (lang === "es") ? "Ganancia" : "Profit";
+      const finalLbl = (lang === "es") ? "Final (total)" : "Final (total)";
+      const unitLbl = (lang === "es") ? "Final (por unidad)" : "Final (per unit)";
+
+      const text =
+`${header}
+- ${qtyLbl}: ${r.qty}
+- ${timeLbl}: ${r.printHours.toFixed(2)} hr
+- ${filLbl}: ${r.gramsUsed} g
+- ${discLbl}: ${money(r.bulkDiscountAmt)}
+- ${costLbl}: ${money(r.totalCost)}
+- ${profLbl}: ${money(r.profitDollars)} (${(r.profitPctActual*100).toFixed(1)}%)
+- ${finalLbl}: ${money(r.final)}
+- ${unitLbl}: ${money(r.finalPerUnit)}`;
+
+      navigator.clipboard.writeText(text)
+        .then(() => setStatusKey("status_copyOk"))
+        .catch(() => alert(text));
+    }
+
+    function resetAll(){
+      setState(clearState);
+      if ($("includePlatformFees")) $("includePlatformFees").checked = false;
+      if ($("applyEmptyOnly")) $("applyEmptyOnly").checked = true;
+      if ($("printerPreset")) $("printerPreset").value = "none";
+      if ($("filamentPreset")) $("filamentPreset").value = "none";
+      if ($("platformPreset")) $("platformPreset").value = "none";
+      if ($("laborPerUnit")) $("laborPerUnit").checked = false;
+      renderEmpty();
+      // ✅ Clear QR section too
+if ($("qrItemName")) $("qrItemName").value = "";
+if ($("qrItemPrice")) $("qrItemPrice").value = "";
+clearQRUI();
+
+      // ✅ Also clear saved defaults so refresh doesn't bring numbers back
+localStorage.removeItem(LS_DEFAULTS_KEY);
+// ✅ Clear session draft restore (this is what brings numbers back after refresh)
+sessionStorage.removeItem(SS_DRAFT_KEY);
+
+// ✅ Turn off auto-load defaults
+const s = loadJSON(LS_SETTINGS_KEY, {});
+s.autoLoadDefaults = false;
+saveJSON(LS_SETTINGS_KEY, s);
+if ($("autoLoadDefaults")) $("autoLoadDefaults").checked = false;
+
+    }
+
+    function applyBeginnerModeUI(isBeginner){
+      const root = $("appRoot");
+      if (!root) return;
+      root.classList.toggle("beginner", !!isBeginner);
+      const hint = $("beginnerHint");
+      if (hint) hint.style.display = isBeginner ? "block" : "none";
+      setStatusKey(isBeginner ? "status_beginnerOn" : "status_beginnerOff");
+    }
+
+    function applyThemeUI(isLight){
+  const root = $("appRoot");
+  if (!root) return;
+
+  // Apply to app UI
+  root.classList.toggle("light", !!isLight);
+
+  // Apply to the whole page background too
+  document.body.classList.toggle("light", !!isLight);
+
+  setStatusKey(isLight ? "status_lightOn" : "status_darkOn");
+}
+
+
+    // ---------- Inventory ----------
+   // ✅ Label print selection state (temporary; resets on refresh)
+const LABEL_SEL = {}; // { [invId]: { selected: boolean, qty: number } }
+// ✅ Persist label selection across print cancel/back (sessionStorage)
+const SS_LABEL_KEY = "label_selection_v1";
+
+function saveLabelSelection(){
+  try{
+    sessionStorage.setItem(SS_LABEL_KEY, JSON.stringify(LABEL_SEL));
+  }catch(e){}
+}
+
+function restoreLabelSelection(){
+  try{
+    const raw = sessionStorage.getItem(SS_LABEL_KEY);
+    if (!raw) return;
+    const obj = JSON.parse(raw);
+    if (!obj || typeof obj !== "object") return;
+
+    // Replace current selection state
+    for (const k in LABEL_SEL) delete LABEL_SEL[k];
+    for (const k in obj){
+      const v = obj[k];
+      if (!v) continue;
+      LABEL_SEL[k] = {
+        selected: !!v.selected,
+        qty: Math.max(1, parseInt(v.qty || 1, 10) || 1)
+      };
+    }
+  }catch(e){}
+}
+
+function getLabelSel(id){
+  if (!LABEL_SEL[id]) LABEL_SEL[id] = { selected:false, qty: 1 };
+  return LABEL_SEL[id];
+}
+
+window.__labelToggle = (id, on) => {
+  const s = getLabelSel(id);
+  s.selected = !!on;
+  saveLabelSelection(); // ✅ persist immediately
+};
+
+
+window.__labelQty = (id, v) => {
+  const n = parseInt(v, 10);
+  const s = getLabelSel(id);
+  s.qty = Number.isFinite(n) && n > 0 ? n : 1;
+  saveLabelSelection(); // ✅ persist immediately
+};
+
+// ✅ Clear label selection (checkboxes + qty)
+function clearLabelSelection(){
+  for (const k in LABEL_SEL) delete LABEL_SEL[k];
+  renderInventory();
+}
+
+// ✅ Build the URL that the QR should contain (same logic as makeQR)
+function buildQRUrlForItem(name, price){
+  const url = new URL(appBaseURL());
+  url.searchParams.set("item", name);
+  url.searchParams.set("price", Number(price).toFixed(2));
+  return url.toString();
+}
+
+// ✅ Generate a QR image dataURL (so we can print many at once)
+function makeQRDataURL(text, sizePx){
+  // Create a temporary container
+  const temp = document.createElement("div");
+  temp.style.position = "fixed";
+  temp.style.left = "-9999px";
+  temp.style.top = "-9999px";
+  document.body.appendChild(temp);
+
+  // Generate QR into temp
+  new QRCode(temp, {
+    text,
+    width: sizePx,
+    height: sizePx,
+    correctLevel: QRCode.CorrectLevel.M
+  });
+
+  // Extract image/canvas
+  const img = temp.querySelector("img");
+  const canvas = temp.querySelector("canvas");
+  let dataUrl = "";
+  if (img && img.src) dataUrl = img.src;
+  else if (canvas && canvas.toDataURL) dataUrl = canvas.toDataURL("image/png");
+
+  // Cleanup
+  temp.remove();
+  return dataUrl;
+}
+
+// ✅ Multi-print selected inventory labels (Thermal 58/80mm OR Sheet Letter/A4)
+function printSelectedLabels(){
+  const inv = loadInv();
+
+  // ✅ Save current label selection before entering print flow
+  saveLabelSelection();
+  saveDraftToSession(); // ✅ remembers active tab (Inventory) + state for Back/Cancel
+
+  // UI settings
+  const preset = ($("labelPreset")?.value || "58").trim(); // "58" or "80"
+  const printerType = ($("labelPrinterType")?.value || "thermal").trim(); // "thermal" or "sheet"
+  const qrSizeSlider = parseInt($("labelQRSize")?.value || "180", 10); // user slider value
+  const fontSize = parseInt($("labelFontSize")?.value || "13", 10);
+  const showPrice = $("labelShowPrice")?.checked ?? true;
+
+  // Collect selected items with qty
+  const selected = [];
+  for (const item of inv){
+    const sel = LABEL_SEL[item.id];
+    if (sel && sel.selected){
+      const copies = Math.max(1, parseInt(sel.qty || 1, 10) || 1);
+      selected.push({ item, copies });
+    }
+  }
+
+  if (!selected.length){
+    alert((currentLang()==="es") ? "Selecciona al menos un artículo para imprimir." : "Select at least one item to print.");
+    return;
+  }
+
+  const esc = (s) => String(s)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
+
+  // Build labels list (repeat per copies)
+  const labels = [];
+  for (const row of selected){
+    const name = row.item.name || "";
+    const price = Number(row.item.pricePerUnit || 0);
+    const url = buildQRUrlForItem(name, price);
+
+    for (let i=0; i<row.copies; i++){
+      labels.push({ name, price, url });
+    }
+  }
+
+  // Save return URL
+  sessionStorage.setItem("qrPrintReturnURL", window.location.href);
+
+  const lang = currentLang();
+  const btnPrint = (lang === "es") ? "Imprimir" : "Print";
+  const btnBack  = (lang === "es") ? "Volver" : "Back";
+  const helpTxt  = (lang === "es")
+    ? "Tip: si no aparece imprimir, usa Compartir → Imprimir o abre en Safari."
+    : "Tip: if print doesn’t appear, use Share → Print or open in Safari.";
+
+  // -----------------------------
+  // THERMAL MODE (58 / 80mm) ✅ FIXED PDF SIZE
+  // -----------------------------
+  if (printerType === "thermal"){
+    const pageWmm = (preset === "80") ? 80 : 58;
+
+    // ✅ Choose a stable sticker height (mm)
+    // You said you don't know: we'll use safe defaults:
+    // 58mm roll -> 40mm tall label
+    // 80mm roll -> 45mm tall label
+    const labelHmm = (pageWmm === 80) ? 45 : 40;
+
+    // Padding + gap in mm
+    const padMm = 2;
+    const gapMm = 2;
+
+    // ✅ Physical QR size (mm)
+    // Use slider (120-260) but map it into a sane QR physical size range
+    // 18mm to 34mm works great on most 58/80 labels
+    const qrMm = (() => {
+      const min = 18;
+      const max = (pageWmm === 80) ? 36 : 34;
+      // map slider 120..260 -> min..max
+      const t = Math.max(0, Math.min(1, (qrSizeSlider - 120) / (260 - 120)));
+      return (min + (max - min) * t);
+    })();
+
+    // ✅ Generate QR bitmap big enough to stay sharp
+    // 300dpi makes clean QR in PDFs
+    const dpi = 300;
+    const qrPx = Math.max(200, Math.round((qrMm * dpi) / 25.4));
+
+    const labelsHTML = labels.map(l => {
+      const priceText = Number.isFinite(l.price) ? l.price.toFixed(2) : "0.00";
+      const qrDataUrl = makeQRDataURL(l.url, qrPx);
+
+      return `
+        <div class="label">
+          <div class="txt">
+            <div class="name">${esc(l.name)}</div>
+            ${showPrice ? `<div class="price">$${esc(priceText)}</div>` : ``}
+          </div>
+          <img src="${qrDataUrl}" alt="QR">
+        </div>
+      `;
+    }).join("");
+
+    const html = `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Print Labels</title>
+  <style>
+    /* ✅ CRITICAL: explicit width + height so phone PDF is NOT Letter/A4 */
+    @page { size: ${pageWmm}mm ${labelHmm}mm; margin: 0; }
+
+    html,body{ margin:0; padding:0; }
+    body{ font-family: Arial, sans-serif; }
+
+    .toolbar{
+      padding:10px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      background:#f3f4f6;
+      border-bottom:1px solid #e5e7eb;
+    }
+    .toolbar button{
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid #111827;
+      background:#ffffff;
+      font-weight:800;
+     color:#111827;
+     cursor:pointer;
+    }
+    .help{
+      font-size:12px;
+      color:#374151;
+      text-align:center;
+      padding:8px 12px;
+    }
+
+    /* ✅ One label per page, exact size */
+    .label{
+      width: ${pageWmm}mm;
+      height: ${labelHmm}mm;
+      box-sizing: border-box;
+      padding: ${padMm}mm;
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: ${gapMm}mm;
+      align-items:center;
+      page-break-after: always;
+      overflow:hidden;
+    }
+
+    .name{
+      font-size: ${fontSize}px;
+      font-weight: 800;
+      line-height: 1.05;
+      max-height: 2.3em;
+      overflow:hidden;
+    }
+    .price{
+      font-size: ${fontSize + 4}px;
+      font-weight: 900;
+      margin-top: 2mm;
+    }
+
+    /* ✅ Physical QR size in mm (NOT px) */
+    img{
+      width: ${qrMm.toFixed(1)}mm;
+      height:${qrMm.toFixed(1)}mm;
+      display:block;
+    }
+
+    @media print{
+      .toolbar,.help{ display:none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button onclick="window.print()">${esc(btnPrint)}</button>
+    <button onclick="window.__goBackToApp()">${esc(btnBack)}</button>
+  </div>
+  <div class="help">${esc(helpTxt)}</div>
+
+  ${labelsHTML}
+
+  <script>
+    window.__goBackToApp = () => {
+      const returnURL = sessionStorage.getItem("qrPrintReturnURL") || "./";
+      window.location.href = returnURL;
+    };
+    window.onload = () => {
+      setTimeout(() => { try{ window.print(); }catch(e){} }, 300);
+    };
+  </scr` + `ipt>
+</body>
+</html>`;
+
+    document.open();
+    document.write(html);
+    document.close();
+    return;
+  }
+
+ 
+
+  // -----------------------------
+  // SHEET MODE (Letter/A4)
+  // -----------------------------
+  // Simple grid on Letter. (You can expand later for A4 auto-detect.)
+  const cols = (preset === "80") ? 2 : 3; // just a helpful default
+  const qrPx = Math.max(160, qrSizeSlider);
+
+  const labelsHTML = labels.map(l => {
+    const priceText = Number.isFinite(l.price) ? l.price.toFixed(2) : "0.00";
+    const qrDataUrl = makeQRDataURL(l.url, qrPx);
+    return `
+      <div class="cell">
+        <img src="${qrDataUrl}" alt="QR">
+        <div class="name">${esc(l.name)}</div>
+        ${showPrice ? `<div class="price">$${esc(priceText)}</div>` : ``}
+      </div>
+    `;
+  }).join("");
+
+  const html = `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Print Labels (Sheet)</title>
+  <style>
+    @page { size: letter; margin: 0.5in; }
+    body{ margin:0; font-family: Arial, sans-serif; }
+
+    .toolbar{
+      padding:10px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      background:#f3f4f6;
+      border-bottom:1px solid #e5e7eb;
+    }
+    .toolbar button{
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid #111827;
+      background:#ffffff;
+      font-weight:800;
+      color:#111827;
+      cursor:pointer;
+    }
+
+    .grid{
+      padding: 16px;
+      display:grid;
+      grid-template-columns: repeat(${cols}, 1fr);
+      gap: 14px;
+    }
+
+    .cell{
+      border: 1px dashed #9ca3af;
+      border-radius: 10px;
+      padding: 10px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 6px;
+      break-inside: avoid;
+    }
+
+    img{ width:${qrPx}px; height:${qrPx}px; }
+    .name{ font-size:${fontSize}px; font-weight:800; text-align:center; }
+    .price{ font-size:${fontSize + 4}px; font-weight:900; }
+
+    @media print{
+      .toolbar{ display:none; }
+      .grid{ padding:0; }
+      .cell{ border:0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button onclick="window.print()">${esc(btnPrint)}</button>
+    <button onclick="window.__goBackToApp()">${esc(btnBack)}</button>
+  </div>
+
+  <div class="grid">
+    ${labelsHTML}
+  </div>
+
+  <script>
+    window.__goBackToApp = () => {
+      const returnURL = sessionStorage.getItem("qrPrintReturnURL") || "./";
+      window.location.href = returnURL;
+    };
+    window.onload = () => {
+      setTimeout(() => { try{ window.print(); }catch(e){} }, 300);
+    };
+  </scr` + `ipt>
+</body>
+</html>`;
+
+  document.open();
+  document.write(html);
+  document.close();
+}
+
+
+    function loadInv(){
+      const inv = loadJSON(LS_INV_KEY, []);
+      return Array.isArray(inv) ? inv : [];
+    }
+    function saveInv(inv){
+      saveJSON(LS_INV_KEY, inv);
+      renderInventory();
+    }
+    function invId(){
+      return "inv_" + Math.random().toString(36).slice(2, 8) + "_" + Date.now().toString(36);
+    }
+    function invCountText(n){
+      const lang = currentLang();
+      if (lang === "es") return `${n} artículos`;
+      return `${n} items`;
+    }
+
+    function renderInventory(){
+      const listEl = $("invList");
+      const pill = $("invCountPill");
+      if (!listEl || !pill) return;
+
+      const q = ($("invSearch")?.value || "").toLowerCase().trim();
+      const inv = loadInv();
+
+      pill.textContent = invCountText(inv.length);
+
+      const filtered = inv.filter(it => {
+        if (!q) return true;
+        const name = (it.name || "").toLowerCase();
+        const notes = (it.notes || "").toLowerCase();
+        return name.includes(q) || notes.includes(q);
+      });
+
+      if (!filtered.length){
+        listEl.innerHTML = `<div class="note">${t("inv_empty")}</div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.slice().reverse().map(item => {
+        const qty = Number.isFinite(item.qty) ? item.qty : 0;
+        const unit = money(item.pricePerUnit || 0);
+        const total = money(item.priceTotal || 0);
+        const meta = t("inv_item_meta")(qty, unit, total);
+        const created = item.createdAt ? formatDate(item.createdAt) : "";
+        return `
+          <div class="invItem">
+            <div class="invHead">
+              <div>
+                <div class="invTitle">${escapeHTML(item.name || "—")}</div>
+                <div class="invMeta">${escapeHTML(meta)}${created ? "<br/>" + escapeHTML(created) : ""}</div>
+                <div class="row" style="margin-top:8px; gap:10px; align-items:center;">
+  <label class="toggle" style="margin:0;">
+    <input type="checkbox"
+      onchange="window.__labelToggle('${item.id}', this.checked)"
+      ${getLabelSel(item.id).selected ? "checked" : ""} />
+    <span>${escapeHTML(t("labels_select"))}</span>
+  </label>
+
+  <div style="max-width:160px;">
+    <label style="margin:0 0 4px 0;">${escapeHTML(t("labels_printQty"))}</label>
+    <input type="number" min="1" step="1"
+      value="${getLabelSel(item.id).qty}"
+      oninput="window.__labelQty('${item.id}', this.value)" />
+  </div>
+</div>
+
+                ${item.notes ? `<div class="invMeta" style="margin-top:6px;">${escapeHTML(item.notes)}</div>` : ""}
+              </div>
+              <div class="invActions">
+                <button class="secondary" type="button" onclick="window.__invAdjust('${item.id}', -1)">${escapeHTML(t("inv_btn_minus"))}</button>
+                <button class="secondary" type="button" onclick="window.__invAdjust('${item.id}', +1)">${escapeHTML(t("inv_btn_plus"))}</button>
+                <button class="warn" type="button" onclick="window.__invAdjust('${item.id}', -1)">${escapeHTML(t("inv_btn_sold"))}</button>
+                <button class="secondary" type="button" onclick="window.__invDuplicate('${item.id}')">${escapeHTML(t("inv_btn_duplicate"))}</button>
+                <button class="danger" type="button" onclick="window.__invDelete('${item.id}')">${escapeHTML(t("inv_btn_delete"))}</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    window.__invAdjust = (id, delta) => {
+      const inv = loadInv();
+      const it = inv.find(x => x.id === id);
+      if (!it) return;
+      const next = (Number.isFinite(it.qty) ? it.qty : 0) + delta;
+      it.qty = Math.max(0, next);
+      saveInv(inv);
+    };
+
+    window.__invDelete = (id) => {
+      if (!confirm(t("inv_confirm_delete"))) return;
+      const inv = loadInv().filter(x => x.id !== id);
+      saveInv(inv);
+    };
+
+    window.__invDuplicate = (id) => {
+      const inv = loadInv();
+      const it = inv.find(x => x.id === id);
+      if (!it) return;
+      const copy = { ...it, id: invId(), createdAt: new Date().toISOString() };
+      inv.push(copy);
+      saveInv(inv);
+    };
+
+    function exportInventory(){
+      const inv = loadInv();
+      const payload = { exportedAt: new Date().toISOString(), version: 1, inventory: inv };
+      const text = JSON.stringify(payload, null, 2);
+      const blob = new Blob([text], { type:"application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "inventory.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    async function importInventoryFromFile(file){
+      try{
+        const txt = await file.text();
+        const obj = JSON.parse(txt);
+        const incoming = Array.isArray(obj.inventory) ? obj.inventory : (Array.isArray(obj) ? obj : null);
+        if (!incoming) throw new Error("Invalid format");
+        const cleaned = incoming.filter(Boolean).map(it => ({
+          id: it.id || invId(),
+          name: it.name || "—",
+          qty: Number.isFinite(it.qty) ? it.qty : 0,
+          pricePerUnit: Number(it.pricePerUnit || 0),
+          priceTotal: Number(it.priceTotal || 0),
+          createdAt: it.createdAt || new Date().toISOString(),
+          notes: it.notes || ""
+        }));
+        saveInv(cleaned);
+        $("status").textContent = t("inv_status_imported")(cleaned.length);
+        $("status").dataset.i18nStatusKey = "";
+      }catch(e){
+        setStatusKey("inv_status_import_failed");
+      }
+    }
+
+    function clearInventory(){
+      if (!confirm(t("inv_confirm_clear"))) return;
+      localStorage.removeItem(LS_INV_KEY);
+      renderInventory();
+      setStatusKey("inv_status_cleared");
+    }
+
+    function addCurrentCalcToInventory(){
+      const r = calc();
+      if (!r){ alert(t("alert_enterValuesFirst")); return; }
+
+      // Prefer jobName if available
+      const suggested = ($("jobName")?.value || "").trim();
+      const name = prompt(t("inv_prompt_name"), suggested || "");
+      if (!name) return;
+
+      const notes = ($("jobNotes")?.value || "").trim();
+      const inv = loadInv();
+      inv.push({
+        id: invId(),
+        createdAt: new Date().toISOString(),
+        name: name.trim(),
+        notes,
+        qty: r.qty || 1,
+        priceTotal: r.final || 0,
+        pricePerUnit: r.finalPerUnit || 0
+      });
+      saveInv(inv);
+      $("status").textContent = t("inv_status_added");
+      $("status").dataset.i18nStatusKey = "";
+    }
+function addQRToInventory(){
+  const name = ($("qrItemName")?.value || "").trim();
+  const priceRaw = ($("qrItemPrice")?.value || "").trim();
+
+  if (!name){
+    alert((currentLang()==="es") ? "Escribe un nombre." : "Enter an item name.");
+    $("qrItemName")?.focus();
+    return;
+  }
+
+  const priceNum = Number(priceRaw);
+  if (!priceRaw || !Number.isFinite(priceNum) || priceNum <= 0){
+    alert((currentLang()==="es") ? "Escribe un precio válido." : "Enter a valid price.");
+    $("qrItemPrice")?.focus();
+    return;
+  }
+
+  // Ask starting qty (default 1)
+  const lang = currentLang();
+  const qtyPrompt = (lang === "es") ? "Cantidad inicial (ej. 5):" : "Starting quantity (e.g., 5):";
+  const qtyRaw = prompt(qtyPrompt, "1");
+  if (qtyRaw === null) return; // user canceled
+  const qty = Math.max(0, parseInt(qtyRaw, 10) || 0);
+
+  const inv = loadInv();
+  inv.push({
+    id: invId(),
+    createdAt: new Date().toISOString(),
+    name: name,
+    notes: "",
+    qty: qty,
+    pricePerUnit: Number(priceNum.toFixed(2)),
+    priceTotal: Number((priceNum * Math.max(1, qty)).toFixed(2))
+  });
+
+  saveInv(inv);
+
+  // Feedback + jump to inventory
+  const msg = (lang === "es") ? "Agregado al inventario ✅" : "Added to inventory ✅";
+  $("status").textContent = msg;
+  $("status").dataset.i18nStatusKey = "";
+
+  showTab("inv");
+}
+
+    // ---------- Tabs ----------
+    function showTab(which){
+      const tabCalc = $("tabCalc");
+      const tabInv = $("tabInv");
+      const bCalc = $("tabBtnCalc");
+      const bInv = $("tabBtnInv");
+      const isInv = which === "inv";
+
+      if (tabCalc) tabCalc.style.display = isInv ? "none" : "";
+      if (tabInv) tabInv.style.display = isInv ? "" : "none";
+
+      bCalc?.classList.toggle("active", !isInv);
+      bInv?.classList.toggle("active", isInv);
+
+      if (isInv) renderInventory();
+    }
+
+    function applyI18nToDOM(){
+      const lang = currentLang();
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        el.innerHTML = t(key);
+      });
+
+      document.querySelectorAll("[data-i18n-html]").forEach(el => {
+        const key = el.getAttribute("data-i18n-html");
+        el.innerHTML = t(key);
+      });
+
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        const key = el.getAttribute("data-i18n-placeholder");
+        el.setAttribute("placeholder", t(key));
+      });
+
+      const statusEl = $("status");
+      if (statusEl){
+        const k = statusEl.dataset.i18nStatusKey;
+        if (k) statusEl.textContent = t(k);
+      }
+
+      refreshAllPresetSelects();
+      renderJobs();
+      renderInventory();
+      calc();
+    }
+function saveDraftToSession(){
+  try{
+    const draft = {
+      // calculator + toggles + presets
+      state: getState(),
+
+      // which tab you were on
+      activeTab: ($("tabInv") && $("tabInv").style.display !== "none") ? "inv" : "calc",
+
+      // QR fields
+      qrItemName: $("qrItemName")?.value || "",
+      qrItemPrice: $("qrItemPrice")?.value || "",
+      qrHint: $("qrHint")?.textContent || "",
+      qrTextOut: $("qrTextOut")?.textContent || "",
+
+      // save the QR image itself (data URL)
+      qrDataUrl: (() => {
+        const qrBox = $("qrPreview");
+        if (!qrBox) return "";
+        const img = qrBox.querySelector("img");
+        const canvas = qrBox.querySelector("canvas");
+        if (img && img.src) return img.src;
+        if (canvas && canvas.toDataURL) return canvas.toDataURL("image/png");
+        return "";
+      })(),
+
+      // scroll position
+      scrollY: window.scrollY || 0,
+      ts: Date.now()
+    };
+
+    sessionStorage.setItem(SS_DRAFT_KEY, JSON.stringify(draft));
+  }catch(e){}
+}
+
+function restoreDraftFromSession(){
+  try{
+    const raw = sessionStorage.getItem(SS_DRAFT_KEY);
+    if (!raw) return;
+
+    const draft = JSON.parse(raw);
+    if (!draft || !draft.state) return;
+
+    // restore calculator state
+    setState(draft.state);
+
+    // restore tab
+    if (draft.activeTab === "inv") showTab("inv");
+    else showTab("calc");
+
+    // restore QR inputs/text
+    if ($("qrItemName")) $("qrItemName").value = draft.qrItemName || "";
+    if ($("qrItemPrice")) $("qrItemPrice").value = draft.qrItemPrice || "";
+    if ($("qrHint") && draft.qrHint) $("qrHint").textContent = draft.qrHint;
+    if ($("qrTextOut")) $("qrTextOut").textContent = draft.qrTextOut || "";
+
+    // restore QR image box
+    const box = $("qrPreview");
+    if (box){
+      box.innerHTML = "";
+      if (draft.qrDataUrl){
+        const im = new Image();
+        im.src = draft.qrDataUrl;
+        im.style.width = "200px";
+        im.style.height = "200px";
+        im.alt = "QR";
+        box.appendChild(im);
+      }
+    }
+
+    // restore scroll
+    const y = Number(draft.scrollY || 0);
+    setTimeout(() => window.scrollTo(0, y), 50);
+  }catch(e){}
+}
+
+    // ---------------- init wiring ----------------
+    // ================================
+// ✅ CUSTOM ORDER UI wiring
+// ================================
+function wireCustomUI(){
+  const isCustom = $("isCustom");
+  const customFields = $("customFields");
+  const customPct = $("customPct");
+
+  const light = $("customPresetLight");
+  const med   = $("customPresetMed");
+  const heavy = $("customPresetHeavy");
+
+  // If user is in Beginner Mode, these elements still exist (but might be hidden).
+  if (!isCustom || !customFields || !customPct) return;
+
+  const refresh = () => {
+    customFields.style.display = isCustom.checked ? "block" : "none";
+    calc(); // update totals
+  };
+
+  isCustom.addEventListener("change", refresh);
+
+  light?.addEventListener("click", () => {
+    isCustom.checked = true;
+    customPct.value = 10;
+    refresh();
+  });
+
+  med?.addEventListener("click", () => {
+    isCustom.checked = true;
+    customPct.value = 15;
+    refresh();
+  });
+
+  heavy?.addEventListener("click", () => {
+    isCustom.checked = true;
+    customPct.value = 25;
+    refresh();
+  });
+
+  customPct.addEventListener("input", () => {
+    if (isCustom.checked) calc();
+  });
+
+  // Initial render
+  refresh();
+}
+
+    function init(){
+      refreshAllPresetSelects();
+      wireCustomUI();
+
+// ✅ When iPhone PWA returns (Back), Safari may reload — restore draft state
+window.addEventListener("pageshow", (e) => {
+  const returnedFromPrint =
+    sessionStorage.getItem("qrJustReturnedFromPrint") === "1";
+
+  // ✅ Restore state if returning from Print page OR if browser used BFCache
+  if (returnedFromPrint || (e && e.persisted)) {
+    sessionStorage.removeItem("qrJustReturnedFromPrint");
+
+    restoreDraftFromSession();   // ✅ restores calculator + QR + active tab
+    restoreLabelSelection();     // ✅ restores label selection
+    renderInventory();           // ✅ redraw inventory if needed
+  }
+});
+
+
+      // Tabs
+      $("tabBtnCalc")?.addEventListener("click", () => showTab("calc"));
+      $("tabBtnInv")?.addEventListener("click", () => showTab("inv"));
+      $("openInventoryBtn")?.addEventListener("click", () => showTab("inv"));
+      
+// ✅ QR Item buttons (iPhone/PWA-safe)
+function wireQRButtons(){
+  const a = $("btnMakeQR");
+  const b = $("btnClearQR");
+  const c = $("btnPrintQR");
+  const d = $("makeQRFromCalcBtn");
+
+  // Use .onclick so it REPLACES handlers instead of stacking duplicates
+  if (a) a.onclick = makeQR;
+  if (b) b.onclick = clearQRUI;
+  if (c) c.onclick = printQR;
+  if (d) d.onclick = makeQRFromCalculator;
+}
+
+// Run once on first load
+wireQRButtons();
+
+// Run again ONLY when Safari restores page from cache (Back button / PWA return)
+window.addEventListener("pageshow", (e) => {
+  if (e && e.persisted) wireQRButtons();
+});
+
+
+// Don't auto-clear QR on load (so Back keeps it).
+// Only set the hint text if there is no QR showing.
+if ($("qrHint") && !$("qrPreview")?.innerHTML.trim()){
+  $("qrHint").textContent = (currentLang() === "es")
+    ? "Escribe nombre + precio y luego genera el QR."
+    : "Enter an item name + price, then generate a QR.";
+}
+
+
+
+      // Inventory events
+      $("invSearch")?.addEventListener("input", renderInventory);
+      $("invExportBtn")?.addEventListener("click", exportInventory);
+      $("invImportBtn")?.addEventListener("click", () => $("invImportFile")?.click());
+      $("invImportFile")?.addEventListener("change", async (e) => {
+        const f = e.target.files?.[0];
+        if (!f) return;
+        await importInventoryFromFile(f);
+        e.target.value = "";
+      });
+      $("invClearBtn")?.addEventListener("click", clearInventory);
+     $("btnPrintSelectedLabels")?.addEventListener("click", printSelectedLabels);
+     $("btnClearLabelSelection")?.addEventListener("click", clearLabelSelection);
+
+      $("addToInventoryBtn")?.addEventListener("click", addCurrentCalcToInventory);
+      $("btnAddInvFromQR")?.addEventListener("click", addQRToInventory);
+
+      // Apply buttons
+      $("applyPrinterBtn")?.addEventListener("click", () => {
+        const key = $("printerPreset").value;
+        const fields = PRINTER_PRESETS[key]?.fields || {};
+        applyFields(fields);
+      });
+
+      $("applyFilamentBtn")?.addEventListener("click", () => applyFields(FILAMENT_PRESETS[$("filamentPreset").value]?.fields || {}));
+
+      $("applyPlatformBtn")?.addEventListener("click", () => {
+        const key = $("platformPreset").value;
+        const baseFields = PLATFORM_PRESETS[key]?.fields || {};
+        const fields = { ...baseFields };
+        if (key && key !== "none") fields.platformNotes = localizedPlatformNotes(key);
+        applyFields(fields);
+      });
+
+      // Recalc on input
+      inputIds.forEach(id => { if ($(id)) $(id).addEventListener("input", calc); });
+      $("includePlatformFees")?.addEventListener("change", calc);
+      $("laborPerUnit")?.addEventListener("change", calc);
+      $("isCustom")?.addEventListener("change", calc);
+
+      // Defaults buttons
+      $("saveDefaultsBtn")?.addEventListener("click", saveDefaults);
+      $("loadDefaultsBtn")?.addEventListener("click", loadDefaults);
+      $("clearDefaultsBtn")?.addEventListener("click", clearDefaults);
+
+      // Job actions
+      $("saveJobBtn")?.addEventListener("click", () => {
+        const r = calc();
+        if (!r){ alert(t("alert_enterValuesFirst")); return; }
+        const jobs = loadJobs();
+        const record = {
+          ts: new Date().toISOString(),
+          jobName: $("jobName")?.value || "",
+          jobNotes: $("jobNotes")?.value || "",
+
+          // state
+          quantity: $("quantity")?.value || "",
+          bulkDiscountPct: $("bulkDiscountPct")?.value || "",
+          laborPerUnit: $("laborPerUnit")?.checked || false,
+
+          printHours: $("printHours")?.value || "",
+          gramsUsed: $("gramsUsed")?.value || "",
+          spoolPrice: $("spoolPrice")?.value || "",
+          spoolWeight: $("spoolWeight")?.value || "",
+          wastePct: $("wastePct")?.value || "",
+          packagingCost: $("packagingCost")?.value || "",
+          consumablesCost: $("consumablesCost")?.value || "",
+          powerKW: $("powerKW")?.value || "",
+          elecRate: $("elecRate")?.value || "",
+          laborRate: $("laborRate")?.value || "",
+          laborMin: $("laborMin")?.value || "",
+          overheadPct: $("overheadPct")?.value || "",
+          profitPct: $("profitPct")?.value || "",
+          minFee: $("minFee")?.value || "",
+          printerPrice: $("printerPrice")?.value || "",
+          printerLifeHours: $("printerLifeHours")?.value || "",
+          maintenancePerHr: $("maintenancePerHr")?.value || "",
+          includePlatformFees: $("includePlatformFees")?.checked || false,
+          platformFeePct: $("platformFeePct")?.value || "",
+          platformFixedFee: $("platformFixedFee")?.value || "",
+          platformListingFee: $("platformListingFee")?.value || "",
+          platformNotes: $("platformNotes")?.value || "",
+
+          // computed summary
+          qty: r.qty,
+          printHoursTotal: r.printHours,
+          gramsUsedTotal: r.gramsUsed,
+          final: r.final
+        };
+        jobs.push(record);
+        saveJobs(jobs);
+        setStatusKey("status_jobSaved");
+      });
+
+      $("exportJobsBtn")?.addEventListener("click", exportJobs);
+      $("importJobsBtn")?.addEventListener("click", importJobs);
+      $("clearJobsBtn")?.addEventListener("click", clearJobs);
+
+      $("resetBtn")?.addEventListener("click", resetAll);
+      $("copyBtn")?.addEventListener("click", copyQuote);
+
+      // Settings
+      const settings = loadJSON(LS_SETTINGS_KEY, { beginnerMode: true, lightMode: false, autoLoadDefaults: true, lang:"en" });
+
+      const langDefault = (settings.lang === "es") ? "es" : "en";
+      if ($("langSelect")) $("langSelect").value = langDefault;
+      setLang(langDefault);
+      $("langSelect")?.addEventListener("change", (e) => {
+        setLang(e.target.value);
+        applyI18nToDOM();
+      });
+
+      const beginnerDefault = (typeof settings.beginnerMode === "boolean") ? settings.beginnerMode : true;
+      $("beginnerMode").checked = beginnerDefault;
+      applyBeginnerModeUI(beginnerDefault);
+      $("beginnerMode").addEventListener("change", (e) => {
+        const on = e.target.checked;
+        applyBeginnerModeUI(on);
+        const s = loadJSON(LS_SETTINGS_KEY, {});
+        s.beginnerMode = on;
+        saveJSON(LS_SETTINGS_KEY, s);
+      });
+
+      const lightDefault = (typeof settings.lightMode === "boolean") ? settings.lightMode : false;
+      $("lightMode").checked = lightDefault;
+      applyThemeUI(lightDefault);
+      $("lightMode").addEventListener("change", (e) => {
+        const on = e.target.checked;
+        applyThemeUI(on);
+        const s = loadJSON(LS_SETTINGS_KEY, {});
+        s.lightMode = on;
+        saveJSON(LS_SETTINGS_KEY, s);
+      });
+
+      applyI18nToDOM();
+
+      renderEmpty();
+      renderJobs();
+      renderInventory();
+
+      const autoLoad = (typeof settings.autoLoadDefaults === "boolean") ? settings.autoLoadDefaults : true;
+      if ($("autoLoadDefaults")) $("autoLoadDefaults").checked = autoLoad;
+
+      $("autoLoadDefaults")?.addEventListener("change", (e) => {
+        const s = loadJSON(LS_SETTINGS_KEY, {});
+        s.autoLoadDefaults = !!e.target.checked;
+        saveJSON(LS_SETTINGS_KEY, s);
+      });
+
+      if (autoLoad){
+        const saved = loadJSON(LS_DEFAULTS_KEY, null);
+        if (saved) setState(saved);
+      }
+
+      // Default tab
+      showTab("calc");
+    }
+
+   function applyQRParamsOnLoad(){
+  const params = new URLSearchParams(window.location.search);
+  const item = params.get("item");
+  const price = params.get("price");
+
+  if (item && $("qrItemName")) $("qrItemName").value = item;
+  if (price && $("qrItemPrice")) $("qrItemPrice").value = price;
+
+  // If opened from a QR scan, jump to Calculator tab so you can see the QR section
+  if (item || price) showTab("calc");
+}
+
+    init();
+  
+// ✅ If coming back from Print page, pageshow handler will restore state
+if (sessionStorage.getItem("qrJustReturnedFromPrint") === "1") {
+  // Leave it here; pageshow will remove it after restoring
+}
+
+    applyQRParamsOnLoad();
+
+  </script>
+
+</body>
+</html>
