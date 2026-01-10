@@ -2946,6 +2946,14 @@ function printSelectedLabels(){
     }
 
     function addCurrentCalcToInventory(){
+       // Tier gate (Beginner cannot use Inventory)
+  if (typeof getTier === "function" && getTier() === "beginner"){
+    alert((currentLang()==="es")
+      ? "Inventario disponible en Advanced y Pro."
+      : "Inventory is available in Advanced and Pro.");
+    return;
+  }
+
       const r = calc();
       if (!r){ alert(t("alert_enterValuesFirst")); return; }
 
