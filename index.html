@@ -2978,8 +2978,17 @@ function printSelectedLabels(){
       $("status").dataset.i18nStatusKey = "";
     }
 function addQRToInventory(){
+ // Tier gate (Beginner cannot use Inventory)
+  if (typeof getTier === "function" && getTier() === "beginner"){
+    alert((currentLang()==="es")
+      ? "Inventario disponible en Advanced y Pro."
+      : "Inventory is available in Advanced and Pro.");
+    return;
+  }
+
   const name = ($("qrItemName")?.value || "").trim();
   const priceRaw = ($("qrItemPrice")?.value || "").trim();
+  
 
   if (!name){
     alert((currentLang()==="es") ? "Escribe un nombre." : "Enter an item name.");
