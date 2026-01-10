@@ -3380,8 +3380,26 @@ if ($("qrHint") && !$("qrPreview")?.innerHTML.trim()){
         setStatusKey("status_jobSaved");
       });
 
-      $("exportJobsBtn")?.addEventListener("click", exportJobs);
-      $("importJobsBtn")?.addEventListener("click", importJobs);
+      $("exportJobsBtn")?.addEventListener("click", () => {
+  if (typeof getTier === "function" && getTier() !== "pro"){
+    alert((currentLang()==="es")
+      ? "Exportar historial (JSON) es Pro."
+      : "Export Job History (JSON) is Pro.");
+    return;
+  }
+  exportJobs();
+});
+$("importJobsBtn")?.addEventListener("click", () => {
+  if (typeof getTier === "function" && getTier() !== "pro"){
+    alert((currentLang()==="es")
+      ? "Importar historial (JSON) es Pro."
+      : "Import Job History (JSON) is Pro.");
+    return;
+  }
+  importJobs();
+});
+
+      
       $("clearJobsBtn")?.addEventListener("click", clearJobs);
 
       $("resetBtn")?.addEventListener("click", resetAll);
