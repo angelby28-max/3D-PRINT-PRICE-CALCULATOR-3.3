@@ -3406,18 +3406,6 @@ if ($("tierSelect")) {
 
    applyBeginnerModeUI(beginnerDefault);
 
-if ($("beginnerMode")) {
-  $("beginnerMode").addEventListener("change", (e) => {
-    const on = e.target.checked;
-
-    applyBeginnerModeUI(on);
-
-    const s = loadJSON(LS_SETTINGS_KEY, {});
-    s.beginnerMode = on;
-    saveJSON(LS_SETTINGS_KEY, s);
-  });
-}
-
 
         const lightDefault = (typeof settings.lightMode === "boolean") ? settings.lightMode : false;
 
