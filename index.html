@@ -154,16 +154,16 @@ body.light .modalBody{ color:#111827; }
     .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 
     .beginner .advanced-only { display:none !important; }
-/* Beginner Mode – hide advanced pricing fields */
-.beginner input#bulkDiscountPct,
-.beginner input#wastePct,
-.beginner input#packagingCost,
-.beginner input#consumablesCost,
-.beginner input#overheadPct {
-  display: none !important;
+     /* Beginner Mode – hide entire field blocks (label + input) */
+.beginner div:has(> input#bulkDiscountPct),
+.beginner div:has(> input#wastePct),
+.beginner div:has(> input#packagingCost),
+.beginner div:has(> input#consumablesCost),
+.beginner div:has(> input#overheadPct){
+  display:none !important;
 }
 
-    #appRoot.light{
+   #appRoot.light{
       --bg:#f3f4f6;
       --card:#ffffff;
       --text:#111827;
