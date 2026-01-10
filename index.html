@@ -3381,10 +3381,7 @@ if ($("tierSelect")) {
   // Sync the checkbox (even if disabled, it can reflect status)
   if ($("beginnerMode")) $("beginnerMode").checked = isBeginnerTier;
 
-  // Save to your existing settings storage (NO saveSettings() call)
-  settings.beginnerMode = isBeginnerTier;
-  saveJSON(LS_SETTINGS_KEY, settings);
-
+ 
   // Status message
   const tierName = (TIERS[next].name && TIERS[next].name[currentLang()]) ? TIERS[next].name[currentLang()] : next;
   if ($("status")) {
