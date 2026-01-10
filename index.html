@@ -3211,8 +3211,22 @@ window.addEventListener("pageshow", (e) => {
 
       // Tabs
       $("tabBtnCalc")?.addEventListener("click", () => showTab("calc"));
-      $("tabBtnInv")?.addEventListener("click", () => showTab("inv"));
-      $("openInventoryBtn")?.addEventListener("click", () => showTab("inv"));
+     $("tabBtnInv")?.addEventListener("click", () => {
+  if (getTier() === "beginner"){
+    alert("Inventory is available in Advanced and Pro mode.");
+    return;
+  }
+  showTab("inv");
+});
+
+$("openInventoryBtn")?.addEventListener("click", () => {
+  if (getTier() === "beginner"){
+    alert("Inventory is available in Advanced and Pro mode.");
+    return;
+  }
+  showTab("inv");
+});
+
       
 // ✅ QR Item buttons (iPhone/PWA-safe)
 function wireQRButtons(){
