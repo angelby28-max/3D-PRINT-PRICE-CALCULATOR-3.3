@@ -700,7 +700,10 @@ body.light .modalBody{ color:#111827; }
           <!-- Add to Inventory -->
           <div class="btns" style="margin-top:12px;">
             <button id="addToInventoryBtn" class="secondary" type="button" data-i18n="inv_addFromCalc">Add to Inventory</button>
-           <button id="makeQRFromCalcBtn" class="secondary" type="button">Generate QR from this quote</button>
+           <button id="makeQRFromCalcBtn" class="secondary" type="button" data-i18n="qr_btn_fromQuote">
+  Generate QR from this quote
+</button>
+
 
             <button id="openInventoryBtn" class="secondary" type="button" data-i18n="inv_openInventory">Open Inventory</button>
           </div>
@@ -1231,6 +1234,7 @@ sessionStorage.setItem("qrPrintReturnURL", window.location.href);
        qr_hint_default: "Enter an item name + price, then generate a QR.",
        qr_alert_needName: "Please enter an item name.",
        qr_alert_needPrice: "Please enter a valid price.",
+       qr_btn_fromQuote: "Generate QR from this quote",
        beginnerMode: "Beginner Mode",
        labels_title: "Print Labels",
 labels_pill: "Multi-print on one sheet",
@@ -1533,7 +1537,8 @@ customNote: "Covers extra time, revisions, communication, and risk for custom wo
       qr_hint_default: "Ingresa un nombre y un precio, luego genera el QR.",
      qr_alert_needName: "Por favor ingresa el nombre del artículo.",
      qr_alert_needPrice: "Por favor ingresa un precio válido.",
-     beginnerMode: "Modo Principiante",
+    qr_btn_fromQuote: "Generar QR desde esta cotización",
+    beginnerMode: "Modo Principiante",
 labels_title: "Imprimir etiquetas",
 labels_pill: "Varias en una hoja",
 labels_preset: "Tamaño de etiqueta",
