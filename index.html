@@ -3297,7 +3297,16 @@ if ($("qrHint") && !$("qrPreview")?.innerHTML.trim()){
         e.target.value = "";
       });
       $("invClearBtn")?.addEventListener("click", clearInventory);
-     $("btnPrintSelectedLabels")?.addEventListener("click", printSelectedLabels);
+     $("btnPrintSelectedLabels")?.addEventListener("click", () => {
+  if (typeof getTier === "function" && getTier() !== "pro"){
+    alert((currentLang()==="es")
+      ? "Impresión de etiquetas es Pro."
+      : "Label printing is Pro only.");
+    return;
+  }
+  printSelectedLabels();
+});
+
      $("btnClearLabelSelection")?.addEventListener("click", clearLabelSelection);
 
       $("addToInventoryBtn")?.addEventListener("click", addCurrentCalcToInventory);
