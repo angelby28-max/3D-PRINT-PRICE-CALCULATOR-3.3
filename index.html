@@ -337,12 +337,12 @@ body.light .modalBody{ color:#111827; }
 
     <div class="fields">
       <div>
-        <label>Item name</label>
+        <label data-i18n="qr_itemName">Item name</label>
         <input id="qrItemName" type="text" placeholder="e.g., Wire Spider Keychain" />
       </div>
 
       <div>
-        <label>Price ($)</label>
+        <label data-i18n="qr_price">Price ($)</label>
         <input id="qrItemPrice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="e.g., 12.00" />
       </div>
     </div>
@@ -1211,8 +1211,10 @@ sessionStorage.setItem("qrPrintReturnURL", window.location.href);
         lightMode: "Light Mode",
        qr_title: "QR Item",
        qr_pill: "Generate price tag QR",
-        beginnerMode: "Beginner Mode",
-        labels_title: "Print Labels",
+       qr_itemName: "Item name",
+       qr_price: "Price ($)",
+       beginnerMode: "Beginner Mode",
+       labels_title: "Print Labels",
 labels_pill: "Multi-print on one sheet",
 labels_preset: "Label preset",
 labels_qrSize: "QR size",
@@ -1502,6 +1504,8 @@ customNote: "Covers extra time, revisions, communication, and risk for custom wo
         lightMode: "Modo Claro",
        qr_title: "Artículo QR",
        qr_pill: "Generar QR para etiqueta",
+       qr_itemName: "Nombre del artículo",
+       qr_price: "Precio ($)",
        beginnerMode: "Modo Principiante",
 labels_title: "Imprimir etiquetas",
 labels_pill: "Varias en una hoja",
