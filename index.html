@@ -2111,7 +2111,7 @@ const SS_DRAFT_KEY = "qr_draft_state_v1"; // sessionStorage (temporary)
       // If we had to floor it, recompute the displayed discount as actual difference
       bulkDiscountAmt = Math.max(0, targetWithMin - discountedTarget);
       // ✅ Custom surcharge (adds to the target price)
-const isCustom = (typeof getTier === "function" && getTier() === "pro" && ($("isCustom")?.checked ?? false));
+const isCustom = $("isCustom")?.checked ?? false;
 const customPct = Math.max(0, num("customPct")) / 100;
 
 let customAdded = 0;
