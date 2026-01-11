@@ -354,10 +354,10 @@ body.light .modalBody{ color:#111827; }
     </div>
 
     <div class="btns">
-      <button id="btnMakeQR" type="button">Generate QR Code</button>
-      <button id="btnAddInvFromQR" class="secondary" type="button">Add to Inventory</button>
-      <button id="btnClearQR" class="secondary" type="button">Clear</button>
-      <button id="btnPrintQR" class="secondary" type="button">Print QR</button>
+     <button id="btnMakeQR" type="button" data-i18n="qr_btn_generate">Generate QR Code</button>
+     <button id="btnAddInvFromQR" class="secondary" type="button" data-i18n="qr_btn_addInv">Add to Inventory</button>
+     <button id="btnClearQR" class="secondary" type="button" data-i18n="qr_btn_clear">Clear</button>
+     <button id="btnPrintQR" class="secondary" type="button" data-i18n="qr_btn_print">Print QR</button>
 
     </div>
 
@@ -1221,6 +1221,10 @@ sessionStorage.setItem("qrPrintReturnURL", window.location.href);
        qr_price: "Price ($)",
        qr_ph_itemName: "e.g., Wire Spider Keychain",
        qr_ph_price: "e.g., 12.00",
+       qr_btn_generate: "Generate QR Code",
+       qr_btn_addInv: "Add to Inventory",
+       qr_btn_clear: "Clear",
+       qr_btn_print: "Print QR",
        beginnerMode: "Beginner Mode",
        labels_title: "Print Labels",
 labels_pill: "Multi-print on one sheet",
@@ -1516,7 +1520,11 @@ customNote: "Covers extra time, revisions, communication, and risk for custom wo
        qr_price: "Precio ($)",
       qr_ph_itemName: "ej., Llavero araña de alambre",
       qr_ph_price: "ej., 12.00",
-      beginnerMode: "Modo Principiante",
+     qr_btn_generate: "Generar código QR",
+      qr_btn_addInv: "Agregar al inventario",
+      qr_btn_clear: "Borrar",
+       qr_btn_print: "Imprimir QR",
+       beginnerMode: "Modo Principiante",
 labels_title: "Imprimir etiquetas",
 labels_pill: "Varias en una hoja",
 labels_preset: "Tamaño de etiqueta",
