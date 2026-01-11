@@ -338,13 +338,19 @@ body.light .modalBody{ color:#111827; }
     <div class="fields">
       <div>
         <label data-i18n="qr_itemName">Item name</label>
-        <input id="qrItemName" type="text" placeholder="e.g., Wire Spider Keychain" />
-      </div>
+        <input id="qrItemName" type="text"
+  data-i18n-placeholder="qr_ph_itemName"
+  placeholder="e.g., Wire Spider Keychain" />
 
-      <div>
-        <label data-i18n="qr_price">Price ($)</label>
-        <input id="qrItemPrice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="e.g., 12.00" />
       </div>
+<div>
+  <label data-i18n="qr_price">Price ($)</label>
+  <input id="qrItemPrice" type="number"
+    data-i18n-placeholder="qr_ph_price"
+    placeholder="e.g., 12.00" />
+</div>
+
+      
     </div>
 
     <div class="btns">
@@ -1213,6 +1219,8 @@ sessionStorage.setItem("qrPrintReturnURL", window.location.href);
        qr_pill: "Generate price tag QR",
        qr_itemName: "Item name",
        qr_price: "Price ($)",
+       qr_ph_itemName: "e.g., Wire Spider Keychain",
+       qr_ph_price: "e.g., 12.00",
        beginnerMode: "Beginner Mode",
        labels_title: "Print Labels",
 labels_pill: "Multi-print on one sheet",
@@ -1506,7 +1514,9 @@ customNote: "Covers extra time, revisions, communication, and risk for custom wo
        qr_pill: "Generar QR para etiqueta",
        qr_itemName: "Nombre del artículo",
        qr_price: "Precio ($)",
-       beginnerMode: "Modo Principiante",
+      qr_ph_itemName: "ej., Llavero araña de alambre",
+      qr_ph_price: "ej., 12.00",
+      beginnerMode: "Modo Principiante",
 labels_title: "Imprimir etiquetas",
 labels_pill: "Varias en una hoja",
 labels_preset: "Tamaño de etiqueta",
