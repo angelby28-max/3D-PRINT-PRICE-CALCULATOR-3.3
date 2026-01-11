@@ -331,9 +331,9 @@ body.light .modalBody{ color:#111827; }
         <!-- ✅ QR Item (Step 1) -->
   <div class="card" id="qrItemCard" style="margin-bottom:14px;">
     <div class="sec-title">
-      <h2>QR Item</h2>
-      <span class="pill">Generate price tag QR</span>
-    </div>
+      <h2 data-i18n="qr_title">QR Item</h2>
+      <span class="pill" data-i18n="qr_pill">Generate price tag QR</span>
+      </div>
 
     <div class="fields">
       <div>
@@ -1209,6 +1209,8 @@ sessionStorage.setItem("qrPrintReturnURL", window.location.href);
         subTitle: "Beginner Mode keeps it simple. Light Mode gives a brighter look. Both settings are remembered.",
         languageLabel: "Language",
         lightMode: "Light Mode",
+       qr_title: "QR Item",
+       qr_pill: "Generate price tag QR",
         beginnerMode: "Beginner Mode",
         labels_title: "Print Labels",
 labels_pill: "Multi-print on one sheet",
@@ -1498,7 +1500,9 @@ customNote: "Covers extra time, revisions, communication, and risk for custom wo
         subTitle: "Modo Principiante lo mantiene simple. Modo Claro da una apariencia más brillante. Se recuerdan tus ajustes.",
         languageLabel: "Idioma",
         lightMode: "Modo Claro",
-        beginnerMode: "Modo Principiante",
+       qr_title: "Artículo QR",
+       qr_pill: "Generar QR para etiqueta",
+       beginnerMode: "Modo Principiante",
 labels_title: "Imprimir etiquetas",
 labels_pill: "Varias en una hoja",
 labels_preset: "Tamaño de etiqueta",
