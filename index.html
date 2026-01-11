@@ -3483,15 +3483,16 @@ if ($("tierSelect")) {
 
 }
 
-      const beginnerDefault = (typeof settings.beginnerMode === "boolean") ? settings.beginnerMode : true;
-      if ($("beginnerMode")) $("beginnerMode").checked = beginnerDefault;
+   // ✅ Tier drives Beginner UI (single source of truth)
+const tierNow = getTier();
+const isBeginnerTier = (tierNow === "beginner");
 
+if ($("tierSelect")) $("tierSelect").value = tierNow;
+if ($("beginnerMode")) $("beginnerMode").checked = isBeginnerTier;
 
+applyBeginnerModeUI(isBeginnerTier);
 
-   applyBeginnerModeUI(beginnerDefault);
-
-
-        const lightDefault = (typeof settings.lightMode === "boolean") ? settings.lightMode : false;
+ const lightDefault = (typeof settings.lightMode === "boolean") ? settings.lightMode : false;
 
 if ($("lightMode")) {
   $("lightMode").checked = lightDefault;
