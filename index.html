@@ -1143,11 +1143,12 @@ sessionStorage.setItem("qrPrintReturnURL", window.location.href);
   </div>
 
   <script>
-    window.__goBackToApp = () => {
- sessionStorage.setItem("qrJustReturnedFromPrint", "1");
-const returnURL = sessionStorage.getItem("qrPrintReturnURL") || "./";
+   window.__goBackToApp = () => {
+  sessionStorage.setItem("qrJustReturnedFromPrint", "1");
+  const returnURL = sessionStorage.getItem("qrPrintReturnURL") || "./";
   window.location.href = returnURL;
 };
+
 
 
     // Try auto-print (works on laptop; sometimes blocked on iPhone PWA)
@@ -2698,10 +2699,12 @@ function printSelectedLabels(){
   ${labelsHTML}
 
   <script>
-    window.__goBackToApp = () => {
-      const returnURL = sessionStorage.getItem("qrPrintReturnURL") || "./";
-      window.location.href = returnURL;
-    };
+ window.__goBackToApp = () => {
+  sessionStorage.setItem("qrJustReturnedFromPrint", "1");
+  const returnURL = sessionStorage.getItem("qrPrintReturnURL") || "./";
+  window.location.href = returnURL;
+};
+
     window.onload = () => {
       setTimeout(() => { try{ window.print(); }catch(e){} }, 300);
     };
@@ -2807,9 +2810,11 @@ function printSelectedLabels(){
 
   <script>
     window.__goBackToApp = () => {
-      const returnURL = sessionStorage.getItem("qrPrintReturnURL") || "./";
-      window.location.href = returnURL;
-    };
+  sessionStorage.setItem("qrJustReturnedFromPrint", "1");
+  const returnURL = sessionStorage.getItem("qrPrintReturnURL") || "./";
+  window.location.href = returnURL;
+};
+
     window.onload = () => {
       setTimeout(() => { try{ window.print(); }catch(e){} }, 300);
     };
