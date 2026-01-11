@@ -3204,7 +3204,33 @@ function wireCustomUI(){
     calc(); // update totals
   };
 
-  isCustom.addEventListener("change", refresh);
+  isCustom.addEventListener("change", () => {
+  // ✅ Pro-only gate: Advanced can see it, but cannot activate it
+  if (typeof getTier === "function" && getTier() !== "pro") {
+    // Immediately revert the toggle
+    isCustom.checked = false;
+    customFields.style.display = "none";
+    calc();
+
+    // Message (use modal if you have it, otherwise alert)
+    const lang = currentLang();
+    const msg = (lang === "es")
+      ? "Las tarifas por pedido personalizado son solo para Pro."
+      : "Custom item fees are Pro only.";
+
+    // If your upgrade modal exists, use it; otherwise fallback
+    if (typeof window.showUpgradeModal === "function") {
+      window.showUpgradeModal(msg);
+    } else {
+      alert(msg);
+    }
+    return;
+  }
+
+  // Pro can use it normally
+  refresh();
+});
+
 
   light?.addEventListener("click", () => {
     isCustom.checked = true;
