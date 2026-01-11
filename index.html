@@ -1179,13 +1179,13 @@ sessionStorage.setItem("qrPrintReturnURL", window.location.href);
   const priceRaw = ($("qrItemPrice")?.value || "").trim();
 
   if (!name){
-    alert("Please enter an item name.");
+    alert(t("qr_alert_needName"));
     $("qrItemName")?.focus();
     return;
   }
 
   if (!priceRaw || Number(priceRaw) <= 0){
-    alert("Please enter a valid price.");
+    alert(t("qr_alert_needPrice"));
     $("qrItemPrice")?.focus();
     return;
   }
@@ -1229,6 +1229,8 @@ sessionStorage.setItem("qrPrintReturnURL", window.location.href);
        qr_btn_clear: "Clear",
        qr_btn_print: "Print QR",
        qr_hint_default: "Enter an item name + price, then generate a QR.",
+       qr_alert_needName: "Please enter an item name.",
+       qr_alert_needPrice: "Please enter a valid price.",
        beginnerMode: "Beginner Mode",
        labels_title: "Print Labels",
 labels_pill: "Multi-print on one sheet",
@@ -1529,7 +1531,9 @@ customNote: "Covers extra time, revisions, communication, and risk for custom wo
       qr_btn_clear: "Borrar",
       qr_btn_print: "Imprimir QR",
       qr_hint_default: "Ingresa un nombre y un precio, luego genera el QR.",
-      beginnerMode: "Modo Principiante",
+     qr_alert_needName: "Por favor ingresa el nombre del artículo.",
+     qr_alert_needPrice: "Por favor ingresa un precio válido.",
+     beginnerMode: "Modo Principiante",
 labels_title: "Imprimir etiquetas",
 labels_pill: "Varias en una hoja",
 labels_preset: "Tamaño de etiqueta",
