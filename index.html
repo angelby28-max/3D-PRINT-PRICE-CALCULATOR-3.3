@@ -1979,6 +1979,28 @@ function normalizeLicenseKey(k){
     .replace(/\s+/g, "")
     .replace(/-/g, "");
 }
+// ---------------- License validation (Commit 7.3) ----------------
+
+// SHA-256 helper
+async function sha256Hex(str){
+  const enc = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
+// Put LICENSE HASHES here (we will fill later)
+const LICENSE_HASHES = {
+  // "HASH_VALUE": "advanced",
+  // "HASH_VALUE": "pro"
+};
+
+// Validate license key -> returns tier or null
+async function validateLicenseKey(rawKey){
+  const norm = normalizeLicenseKey(rawKey);
+  if (!norm) return null;
+  const hash = await sha256Hex(norm);
+  return LICENSE_HASHES[hash] || null;
+}
 
     function setSelectOptions(selectEl, presets){
       if (!selectEl) return;
