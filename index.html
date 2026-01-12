@@ -1971,6 +1971,14 @@ const LS_LICENSE_TIER = "calc_license_tier_v1";   // stores unlocked tier: "adva
         return fallback;
       }
     }
+// ---------------- License helpers (Commit 7.2) ----------------
+function normalizeLicenseKey(k){
+  return String(k || "")
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, "")
+    .replace(/-/g, "");
+}
 
     function setSelectOptions(selectEl, presets){
       if (!selectEl) return;
