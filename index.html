@@ -2001,6 +2001,52 @@ async function validateLicenseKey(rawKey){
   const hash = await sha256Hex(norm);
   return LICENSE_HASHES[hash] || null;
 }
+// ---------------- License storage + apply (Commit 7.4) ----------------
+function getUnlockedTier(){
+  // returns "beginner" | "advanced" | "pro"
+  const t = (localStorage.getItem(LS_LICENSE_TIER) || "").trim().toLowerCase();
+  return (t === "pro" || t === "advanced") ? t : "beginner";
+}
+
+function setUnlockedTier(tier){
+  const v = (tier === "pro" || tier === "advanced") ? tier : "beginner";
+  if (v === "beginner"){
+    localStorage.removeItem(LS_LICENSE_TIER);
+  } else {
+    localStorage.setItem(LS_LICENSE_TIER, v);
+  }
+}
+
+// Apply unlocked tier to your existing tier system
+function applyUnlockedTierToApp(){
+  const unlocked = getUnlockedTier(); // beginner/advanced/pro
+
+  // If user manually set tier to pro but license only advanced, clamp it.
+  const current = (typeof getTier === "function") ? getTier() : "beginner";
+
+  let effective = current;
+
+  if (unlocked === "beginner"){
+    // no license: allow only beginner/advanced? (we force beginner to keep it strict)
+    effective = "beginner";
+  } else if (unlocked === "advanced"){
+    // advanced license: allow beginner or advanced
+    effective = (current === "pro") ? "advanced" : (current === "advanced" ? "advanced" : "beginner");
+  } else if (unlocked === "pro"){
+    // pro license: allow any
+    effective = current;
+  }
+
+  // Force UI + saved tier to effective
+  localStorage.setItem(LS_TIER_KEY, effective);
+
+  if ($("tierSelect")) $("tierSelect").value = effective;
+  if ($("beginnerMode")) $("beginnerMode").checked = (effective === "beginner");
+
+  applyBeginnerModeUI(effective === "beginner");
+  renderInventory();
+  calc();
+}
 
     function setSelectOptions(selectEl, presets){
       if (!selectEl) return;
