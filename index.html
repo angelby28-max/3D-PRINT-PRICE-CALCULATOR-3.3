@@ -308,6 +308,20 @@ body.light .modalBody{ color:#111827; }
 
   </select>
 </label>
+<!-- ✅ License Unlock (Commit 7.4) -->
+<div class="card" style="margin-top:12px;">
+  <div style="font-weight:900; margin-bottom:8px;" id="licenseTitle">License</div>
+
+  <label style="margin:0 0 6px 0;" id="licenseLabel">Enter license key</label>
+  <input id="licenseInput" type="text" placeholder="PRO-XXXX-XXXX-YY-C" style="width:100%;"/>
+
+  <div style="display:flex; gap:10px; margin-top:10px;">
+    <button class="btn" type="button" id="licenseApplyBtn">Unlock</button>
+    <button class="btn ghost" type="button" id="licenseClearBtn">Clear</button>
+  </div>
+
+  <div id="licenseMsg" class="note" style="margin-top:10px;"></div>
+</div>
 
         <label class="toggle" style="margin:0;">
           <input id="lightMode" type="checkbox" />
@@ -2006,7 +2020,67 @@ async function validateLicenseKey(rawKey){
   const hash = await sha256Hex(norm);
   return LICENSE_HASHES[hash] || null;
 }
-// ---------------- License storage + apply (Commit 7.4) ----------------
+// ---------------- License UI logic (Commit 7.4) ----------------
+function setLicenseMsg(msg){
+  const el = $("licenseMsg");
+  if (el) el.textContent = msg || "";
+}
+
+function syncTierUIAfterLicense(){
+  const tierNow = getTier();
+
+  if ($("tierSelect")) $("tierSelect").value = tierNow;
+  if ($("beginnerMode")) $("beginnerMode").checked = (tierNow === "beginner");
+
+  applyBeginnerModeUI(tierNow === "beginner");
+  renderInventory();
+  calc();
+}
+
+async function applyLicenseFromInput(){
+  const input = $("licenseInput");
+  if (!input) return;
+
+  const raw = input.value || "";
+  if (!raw.trim()){
+    setLicenseMsg(currentLang()==="es" ? "Escribe una licencia." : "Enter a license key.");
+    return;
+  }
+
+  setLicenseMsg(currentLang()==="es" ? "Verificando..." : "Verifying...");
+
+  try{
+    const tier = await validateLicenseKey(raw);
+
+    if (!tier){
+      setLicenseMsg(currentLang()==="es" ? "Licencia inválida." : "Invalid license.");
+      return;
+    }
+
+    localStorage.setItem(LS_LICENSE_KEY, normalizeLicenseKey(raw));
+    localStorage.setItem(LS_LICENSE_TIER, tier);
+
+    setLicenseMsg(currentLang()==="es"
+      ? `Licencia activa: ${tier.toUpperCase()} ✅`
+      : `License active: ${tier.toUpperCase()} ✅`);
+
+    syncTierUIAfterLicense();
+  }catch(e){
+    setLicenseMsg(currentLang()==="es" ? "Error validando licencia." : "Error validating license.");
+  }
+}
+
+function clearLicense(){
+  localStorage.removeItem(LS_LICENSE_KEY);
+  localStorage.removeItem(LS_LICENSE_TIER);
+
+  if ($("licenseInput")) $("licenseInput").value = "";
+
+  setLicenseMsg(currentLang()==="es" ? "Licencia borrada." : "License cleared.");
+  syncTierUIAfterLicense();
+}
+
+    // ---------------- License storage + apply (Commit 7.4) ----------------
 function getUnlockedTier(){
   // returns "beginner" | "advanced" | "pro"
   const t = (localStorage.getItem(LS_LICENSE_TIER) || "").trim().toLowerCase();
@@ -3677,6 +3751,9 @@ if ($("lightMode")) {
 
 
       applyI18nToDOM();
+// ✅ License button wiring (Commit 7.4)
+$("licenseApplyBtn")?.addEventListener("click", applyLicenseFromInput);
+$("licenseClearBtn")?.addEventListener("click", clearLicense);
 
       renderEmpty();
       renderJobs();
