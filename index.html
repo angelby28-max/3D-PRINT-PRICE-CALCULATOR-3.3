@@ -2471,7 +2471,8 @@ localStorage.setItem(LS_LICENSE_KEY, code);
 
     syncTierUIAfterLicense();
   }catch(e){
-    setLicenseMsg(currentLang()==="es" ? "Error validando licencia." : "Error validating license.");
+  console.error("License validation error:", e);
+  setLicenseMsg(currentLang()==="es" ? "Error validando licencia." : "Error validating license.");
   }
 }
 
