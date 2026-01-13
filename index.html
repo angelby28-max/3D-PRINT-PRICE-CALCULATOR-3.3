@@ -2463,8 +2463,9 @@ async function applyLicenseFromInput(){
     localStorage.setItem(LS_LICENSE_TIER, tier);
 
     setLicenseMsg(currentLang()==="es"
-      ? `Licencia activa: ${tier.toUpperCase()} ✅`
-      : `License active: ${tier.toUpperCase()} ✅`);
+      ? `Licencia activa: ${tier[0].toUpperCase() + tier.slice(1)} ✅`
+      : `License active: ${tier[0].toUpperCase() + tier.slice(1)} ✅`);
+
 
     syncTierUIAfterLicense();
   }catch(e){
