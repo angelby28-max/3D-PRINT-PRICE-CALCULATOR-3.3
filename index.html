@@ -2456,6 +2456,8 @@ async function applyLicenseFromInput(){
       setLicenseMsg(currentLang()==="es" ? "Licencia inválida." : "Invalid license.");
       return;
     }
+    setUserTier(tier);
+    saveLicenseKey(raw);
 
     localStorage.setItem(LS_LICENSE_KEY, normalizeLicenseKey(raw));
     localStorage.setItem(LS_LICENSE_TIER, tier);
