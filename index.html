@@ -859,7 +859,8 @@ body.light .modalBody{ color:#111827; }
 // - Everything unlocked (no restrictions)
 
 const LS_TIER_KEY = "app_tier_v1"; // stored in localStorage
-
+const LS_LICENSE_TIER = "app_license_tier_v1";
+const LS_LICENSE_KEY  = "app_license_key_v1";
 const TIERS = {
   beginner: {
     name: { en: "Beginner", es: "Principiante" },
@@ -2457,7 +2458,10 @@ async function applyLicenseFromInput(){
       return;
     }
     setUserTier(tier);
-    saveLicenseKey(raw);
+   // ✅ Save lifetime license
+localStorage.setItem(LS_LICENSE_TIER, tier);
+localStorage.setItem(LS_LICENSE_KEY, code);
+ saveLicenseKey(raw);
 
     localStorage.setItem(LS_LICENSE_KEY, normalizeLicenseKey(raw));
     localStorage.setItem(LS_LICENSE_TIER, tier);
@@ -3876,6 +3880,11 @@ function wireCustomUI(){
     function init(){
       refreshAllPresetSelects();
       wireCustomUI();
+  // ✅ Restore lifetime license (no renewals)
+  const savedTier = (localStorage.getItem(LS_LICENSE_TIER) || "").trim().toLowerCase();
+  if (savedTier === "pro" || savedTier === "advanced"){
+    localStorage.setItem(LS_TIER_KEY, savedTier);
+  }
 
 // ✅ When iPhone PWA returns (Back), Safari may reload — restore draft state
 window.addEventListener("pageshow", (e) => {
