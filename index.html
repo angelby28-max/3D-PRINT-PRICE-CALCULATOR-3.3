@@ -2018,20 +2018,9 @@ const LICENSE_HASHES = {
 async function validateLicenseKey(rawKey){
   const norm = normalizeLicenseKey(rawKey);
   if (!norm) return null;
-
-  // Extract expiration year (YY)
-  const yearMatch = rawKey.match(/-(\d{2})-[A-Z0-9]$/i);
-  if (!yearMatch) return null;
-
-  const expYear = 2000 + parseInt(yearMatch[1], 10);
-  const nowYear = new Date().getFullYear();
-
-  if (expYear < nowYear) return null; // expired
-
   const hash = await sha256Hex(norm);
   return LICENSE_HASHES[hash] || null;
 }
-
 // ---------------- License UI logic (Commit 7.4) ----------------
 function setLicenseMsg(msg){
   const el = $("licenseMsg");
