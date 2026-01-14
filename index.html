@@ -2497,12 +2497,19 @@ function getUnlockedTier(){
   const t = (localStorage.getItem(LS_LICENSE_TIER) || "").trim().toLowerCase();
   return (t === "pro" || t === "advanced") ? t : "beginner";
 }
-// ✅ Permission helpers (use UNLOCKED tier, not UI tier)
+
+    // ✅ Helper: ONLY license controls Pro access (not the tier dropdown)
+function canUsePro(){
+  return getUnlockedTier() === "pro";
+}
+
+    // ✅ Permission helpers (use UNLOCKED tier, not UI tier)
 function canUseAdvanced(){
   const u = getUnlockedTier();
   return (u === "advanced" || u === "pro");
 }
-function canUsePro(){
+
+    function canUsePro(){
   return getUnlockedTier() === "pro";
 }
 
@@ -3978,7 +3985,7 @@ if ($("qrHint") && !$("qrPreview")?.innerHTML.trim()){
       });
       $("invClearBtn")?.addEventListener("click", clearInventory);
      $("btnPrintSelectedLabels")?.addEventListener("click", () => {
-  if (typeof getTier === "function" && getTier() !== "pro"){
+    if (!canUsePro()){
     alert((currentLang()==="es")
       ? "Impresión de etiquetas es Pro."
       : "Label printing is Pro only.");
