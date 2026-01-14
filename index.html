@@ -2489,6 +2489,8 @@ applyBeginnerModeUI(true);
   } else if (typeof applyUnlockedTierToApp === "function"){
     applyUnlockedTierToApp();
   }
+
+  syncTierDropdownToLicense();
 }
 
     // ---------------- License storage + apply (Commit 7.4) ----------------
@@ -2509,9 +2511,36 @@ function canUseAdvanced(){
   return (u === "advanced" || u === "pro");
 }
 
-    function canUsePro(){
-  return getUnlockedTier() === "pro";
+ // ✅ Clamp Tier dropdown options to the LICENSE (single source of truth)
+function syncTierDropdownToLicense(){
+  const sel = $("tierSelect");
+  if (!sel) return;
+
+  const unlocked = getUnlockedTier(); // beginner | advanced | pro
+
+  // Enable/disable options
+  [...sel.options].forEach(opt => {
+    const v = (opt.value || "").toLowerCase();
+    if (v === "pro") opt.disabled = (unlocked !== "pro");
+    else if (v === "advanced") opt.disabled = (unlocked === "beginner");
+    else opt.disabled = false; // beginner always allowed
+  });
+
+  // Clamp current selection if it violates unlocked tier
+  let current = (sel.value || "beginner").toLowerCase();
+  if (current === "pro" && unlocked !== "pro") current = "advanced";
+  if (current === "advanced" && unlocked === "beginner") current = "beginner";
+
+  // Apply clamp
+  sel.value = current;
+  localStorage.setItem(LS_TIER_KEY, current);
+
+  // Also sync Beginner Mode checkbox + UI
+  const isBeginnerTier = (current === "beginner");
+  if ($("beginnerMode")) $("beginnerMode").checked = isBeginnerTier;
+  applyBeginnerModeUI(isBeginnerTier);
 }
+
 
 function setUnlockedTier(tier){
   const v = (tier === "pro" || tier === "advanced") ? tier : "beginner";
@@ -3899,7 +3928,9 @@ function wireCustomUI(){
     function init(){
       refreshAllPresetSelects();
       wireCustomUI();
-  // ✅ Restore lifetime license (no renewals)
+      syncTierDropdownToLicense();
+
+      // ✅ Restore lifetime license (no renewals)
   const savedTier = (localStorage.getItem(LS_LICENSE_TIER) || "").trim().toLowerCase();
   if (savedTier === "pro" || savedTier === "advanced"){
     localStorage.setItem(LS_TIER_KEY, savedTier);
