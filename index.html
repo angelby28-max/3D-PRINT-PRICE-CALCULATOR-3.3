@@ -3578,6 +3578,10 @@ function printSelectedLabels(){
       if (!it) return;
       const next = (Number.isFinite(it.qty) ? it.qty : 0) + delta;
       it.qty = Math.max(0, next);
+      // ✅ keep totals consistent when qty changes
+      const unit = Number(it.pricePerUnit || 0);
+      it.priceTotal = Number((it.qty * unit).toFixed(2));
+
       saveInv(inv);
     };
 
