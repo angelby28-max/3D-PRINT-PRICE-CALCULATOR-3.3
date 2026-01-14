@@ -2455,21 +2455,15 @@ async function applyLicenseFromInput(){
       setLicenseMsg(currentLang()==="es" ? "Licencia inválida." : "Invalid license.");
       return;
     }
-    setUserTier(tier);
-   // ✅ Save lifetime license
+  // ✅ Save lifetime license
+localStorage.setItem(LS_LICENSE_KEY, normalizeLicenseKey(raw));
 localStorage.setItem(LS_LICENSE_TIER, tier);
-localStorage.setItem(LS_LICENSE_KEY, code);
- saveLicenseKey(raw);
 
-    localStorage.setItem(LS_LICENSE_KEY, normalizeLicenseKey(raw));
-    localStorage.setItem(LS_LICENSE_TIER, tier);
+setLicenseMsg(currentLang()==="es"
+  ? `Licencia activa: ${tier.toUpperCase()} ✅`
+  : `License active: ${tier.toUpperCase()} ✅`);
 
-    setLicenseMsg(currentLang()==="es"
-      ? `Licencia activa: ${tier[0].toUpperCase() + tier.slice(1)} ✅`
-      : `License active: ${tier[0].toUpperCase() + tier.slice(1)} ✅`);
-
-
-    syncTierUIAfterLicense();
+  syncTierUIAfterLicense();
   }catch(e){
   console.error("License validation error:", e);
   setLicenseMsg(currentLang()==="es" ? "Error validando licencia." : "Error validating license.");
