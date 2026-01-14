@@ -3933,6 +3933,8 @@ function wireCustomUI(){
       refreshAllPresetSelects();
       wireCustomUI();
       syncTierDropdownToLicense();
+     
+      restoreLabelSelection();
 
       // ✅ Restore lifetime license (no renewals)
   const savedTier = (localStorage.getItem(LS_LICENSE_TIER) || "").trim().toLowerCase();
