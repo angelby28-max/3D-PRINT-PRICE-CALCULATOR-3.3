@@ -3128,8 +3128,10 @@ window.__labelQty = (id, v) => {
 // ✅ Clear label selection (checkboxes + qty)
 function clearLabelSelection(){
   for (const k in LABEL_SEL) delete LABEL_SEL[k];
+  try { sessionStorage.removeItem(SS_LABEL_KEY); } catch(e){}
   renderInventory();
 }
+
 
 // ✅ Build the URL that the QR should contain (same logic as makeQR)
 function buildQRUrlForItem(name, price){
