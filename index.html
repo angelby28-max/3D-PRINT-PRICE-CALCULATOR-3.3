@@ -264,7 +264,51 @@ body.light .modalBody{ color:#111827; }
     .invMeta{ color:var(--muted); font-size:11px; line-height:1.3; }
     .invActions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
     .invActions button{ padding:8px 10px; border-radius:10px; font-weight:800; }
-     </style>
+    /* ============================
+   CLEAN INVENTORY PRINT MODE
+============================ */
+@media print {
+
+  body{
+    background:white !important;
+    color:black !important;
+  }
+
+  /* Hide UI controls */
+  button, select, input, .tabs, .pill, .toggle {
+    display:none !important;
+  }
+
+  /* Inventory cards become clean print blocks */
+  .invItem{
+    border:1px solid #000 !important;
+    background:white !important;
+    page-break-inside: avoid;
+  }
+
+  .invTitle{
+    font-size:16px !important;
+    font-weight:900 !important;
+    margin-bottom:4px;
+  }
+
+  .invMeta{
+    font-size:13px !important;
+    color:black !important;
+  }
+
+  /* Make important numbers bold */
+  .invMeta{
+    font-weight:600;
+  }
+
+  /* Remove action column */
+  .invActions{
+    display:none !important;
+  }
+}
+
+ </style>
 <!-- PWA -->
 <link rel="manifest" href="manifest.webmanifest">
 
