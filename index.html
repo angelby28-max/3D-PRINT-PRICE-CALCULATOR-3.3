@@ -4150,35 +4150,50 @@ if ($("tierSelect")) {
   // label text (simple for now; we can i18n it later)
   $("tierLabelPill").textContent = (currentLang() === "es") ? "Plan" : "Tier";
 
- $("tierSelect").addEventListener("change", (e) => {
-  const nextRaw = (e.target.value || "beginner").trim().toLowerCase();
-  const next = TIERS[nextRaw] ? nextRaw : "beginner";
+$("tierSelect").addEventListener("change", (e) => {
+  const requested = (e.target.value || "beginner").trim().toLowerCase();
+  const unlocked = (typeof getUnlockedTier === "function") ? getUnlockedTier() : "beginner";
 
-  // Save tier
-  localStorage.setItem(LS_TIER_KEY, next);
+  let effective = requested;
 
-  // ✅ Tier drives Beginner Mode:
-  // Beginner tier => beginner UI
-  // Advanced + Pro => full UI (advanced-only visible)
-  const isBeginnerTier = (next === "beginner");
+  // Clamp by LICENSE (single source of truth)
+  if (unlocked === "beginner") {
+    effective = "beginner";
+  } else if (unlocked === "advanced") {
+    if (requested === "pro") effective = "advanced";
+    if (requested !== "advanced" && requested !== "beginner") effective = "beginner";
+  } else if (unlocked === "pro") {
+    if (requested !== "beginner" && requested !== "advanced" && requested !== "pro") {
+      effective = "beginner";
+    }
+  }
 
-  // Sync the checkbox (even if disabled, it can reflect status)
+  localStorage.setItem(LS_TIER_KEY, effective);
+
+  if ($("tierSelect")) $("tierSelect").value = effective;
+  const isBeginnerTier = (effective === "beginner");
   if ($("beginnerMode")) $("beginnerMode").checked = isBeginnerTier;
 
- 
-  // Status message
-  const tierName = (TIERS[next].name && TIERS[next].name[currentLang()]) ? TIERS[next].name[currentLang()] : next;
+  applyBeginnerModeUI(isBeginnerTier);
+
+  if (typeof syncTierDropdownToLicense === "function") {
+    syncTierDropdownToLicense();
+  }
+
+  renderInventory();
+  calc();
+
+  const tierName =
+    (typeof TIERS === "object" && TIERS[effective] && TIERS[effective].name && TIERS[effective].name[currentLang()])
+      ? TIERS[effective].name[currentLang()]
+      : effective;
+
   if ($("status")) {
     $("status").textContent = (currentLang() === "es")
       ? `Plan: ${tierName}`
       : `Tier: ${tierName}`;
     $("status").dataset.i18nStatusKey = "";
   }
-
-  // Apply UI + refresh
-  applyBeginnerModeUI(isBeginnerTier);
-  renderInventory();
-  calc();
 });
 
 }
