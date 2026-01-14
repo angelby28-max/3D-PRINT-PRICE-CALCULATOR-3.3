@@ -2474,10 +2474,21 @@ function clearLicense(){
   localStorage.removeItem(LS_LICENSE_KEY);
   localStorage.removeItem(LS_LICENSE_TIER);
 
+  // Force tier back to beginner
+  localStorage.setItem(LS_TIER_KEY, "beginner");
+if ($("tierSelect")) $("tierSelect").value = "beginner";
+applyBeginnerModeUI(true);
+
   if ($("licenseInput")) $("licenseInput").value = "";
 
   setLicenseMsg(currentLang()==="es" ? "Licencia borrada." : "License cleared.");
-  syncTierUIAfterLicense();
+
+  // Apply clamp immediately
+  if (typeof syncTierUIAfterLicense === "function"){
+    syncTierUIAfterLicense();
+  } else if (typeof applyUnlockedTierToApp === "function"){
+    applyUnlockedTierToApp();
+  }
 }
 
     // ---------------- License storage + apply (Commit 7.4) ----------------
@@ -2485,6 +2496,14 @@ function getUnlockedTier(){
   // returns "beginner" | "advanced" | "pro"
   const t = (localStorage.getItem(LS_LICENSE_TIER) || "").trim().toLowerCase();
   return (t === "pro" || t === "advanced") ? t : "beginner";
+}
+// ✅ Permission helpers (use UNLOCKED tier, not UI tier)
+function canUseAdvanced(){
+  const u = getUnlockedTier();
+  return (u === "advanced" || u === "pro");
+}
+function canUsePro(){
+  return getUnlockedTier() === "pro";
 }
 
 function setUnlockedTier(tier){
