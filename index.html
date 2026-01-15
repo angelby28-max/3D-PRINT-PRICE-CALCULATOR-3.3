@@ -2502,6 +2502,7 @@ async function applyLicenseFromInput(){
   // ✅ Save lifetime license
 localStorage.setItem(LS_LICENSE_KEY, normalizeLicenseKey(raw));
 localStorage.setItem(LS_LICENSE_TIER, tier);
+updateLicenseUI();
 
 setLicenseMsg(currentLang()==="es"
   ? `Licencia activa: ${tier.toUpperCase()} ✅`
@@ -2517,6 +2518,7 @@ setLicenseMsg(currentLang()==="es"
 function clearLicense(){
   localStorage.removeItem(LS_LICENSE_KEY);
   localStorage.removeItem(LS_LICENSE_TIER);
+  updateLicenseUI();
 
   // Force tier back to beginner
   localStorage.setItem(LS_TIER_KEY, "beginner");
@@ -3973,6 +3975,43 @@ function wireCustomUI(){
 
   // Initial render
   refresh();
+}
+// ✅ License UX helpers (Commit 5)
+function maskLicenseKey(key){
+  const s = String(key || "").trim();
+  if (!s) return "";
+  // Keep prefix + last chunk visible, mask the middle
+  // Example: PRO-ABCD-EFGH-25-7 -> PRO-••••-••••-25-7
+  const parts = s.split("-");
+  if (parts.length >= 5){
+    return `${parts[0]}-••••-••••-${parts[3]}-${parts[4]}`;
+  }
+  // fallback: mask all but last 4
+  const last4 = s.slice(-4);
+  return `••••${last4}`;
+}
+
+function updateLicenseUI(){
+  const tier = (typeof getUnlockedTier === "function") ? getUnlockedTier() : "beginner";
+  const raw = (localStorage.getItem(LS_LICENSE_KEY) || "").trim();
+
+  // Input box shows masked key if stored
+  if ($("licenseKeyInput")){
+    $("licenseKeyInput").value = raw ? maskLicenseKey(raw) : "";
+  }
+
+  // Status line (re-use #status)
+  if ($("status")){
+    if (tier === "advanced" || tier === "pro"){
+      const last4 = raw ? raw.slice(-4) : "";
+      const label = (tier === "pro") ? "Pro" : "Advanced";
+      $("status").textContent =
+        (currentLang() === "es")
+          ? `✅ Licencia activa: ${label} (…${last4})`
+          : `✅ License active: ${label} (…${last4})`;
+      $("status").dataset.i18nStatusKey = "";
+    }
+  }
 }
 
     function init(){
