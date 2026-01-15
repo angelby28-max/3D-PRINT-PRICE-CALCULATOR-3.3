@@ -2514,8 +2514,9 @@ setLicenseMsg(currentLang()==="es"
   setLicenseMsg(currentLang()==="es" ? "Error validando licencia." : "Error validating license.");
   }
 }
-
 function clearLicense(){
+  if (!confirm("Remove license from this device?")) return;
+
   localStorage.removeItem(LS_LICENSE_KEY);
   localStorage.removeItem(LS_LICENSE_TIER);
   updateLicenseUI();
