@@ -2757,7 +2757,8 @@ function applyUnlockedTierToApp(){
       const qty = Math.max(1, intOr1("quantity"));
 
       // Per-unit inputs
-      const printHoursUnit = num("printHours");
+      const printHoursUnit = num("printHours") + (num("printMinutes") / 60);
+
       const gramsUsedUnit = num("gramsUsed");
 
       const bulkDiscountPct = Math.max(0, num("bulkDiscountPct")) / 100;
