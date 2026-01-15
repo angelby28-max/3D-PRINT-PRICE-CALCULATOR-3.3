@@ -2010,7 +2010,7 @@ const SS_DRAFT_KEY = "qr_draft_state_v1"; // sessionStorage (temporary)
 
     // Inputs managed
    const inputIds = [
-  "quantity","bulkDiscountPct","printHours","printMinutes","gramsUsed","spoolPrice","spoolWeight","wastePct",
+  "quantity","bulkDiscountPct","printHours","printMinutes","machineRateHr","gramsUsed",
   "packagingCost","consumablesCost",
   "powerKW","elecRate","laborRate","laborMin","overheadPct","profitPct","customPct",
   "minFee",
@@ -2812,13 +2812,13 @@ function applyUnlockedTierToApp(){
       const materialCost = effectiveGrams * costPerGram;
 
       const electricityCost = printHours * powerKW * elecRate;
+      const machineTimeCost = printHours * num("machineRateHr");
 
       const laborMinTotal = laborPerUnit ? (laborMinInput * qty) : laborMinInput;
       const laborHours = laborMinTotal / 60;
       const laborCost = laborHours * laborRate;
 
-      const directCost = materialCost + packaging + consumables + electricityCost + machineCost + laborCost;
-
+      const directCost = materialCost + packaging + consumables + electricityCost + machineCost + machineTimeCost + laborCost;
       const overheadCost = directCost * Math.max(0, overheadPct);
       const costWithOverhead = directCost + overheadCost;
 
@@ -2885,6 +2885,7 @@ if (isCustom && customPct > 0){
         ["bd_consumables", consumables, "money"],
         ["bd_electricity", electricityCost, "money"],
         ["bd_machine", machineCost, "money"],
+        ["bd_machineTime", machineTimeCost, "money"],
         ["bd_labor", laborCost, "money"],
         ["bd_base", directCost, "money"],
         ["bd_overhead", overheadCost, "money"],
@@ -2931,7 +2932,7 @@ if (isCustom && customPct > 0){
         totalCost, profitDollars, profitPctActual,
         printHours, gramsUsed, effectiveGrams,
         materialCost, packaging, consumables,
-        electricityCost, machineCost, laborCost,
+        electricityCost, machineCost, machineTimeCost, laborCost,
         overheadCost, targetWithMin, discountedTarget,
         platformAdded, minApplied, laborMinTotal,
         bulkDiscountAmt
