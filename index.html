@@ -525,7 +525,13 @@ body.light .modalBody{ color:#111827; }
               <label data-i18n="printHours">Print time (hours) — per unit</label>
               <input id="printHours" type="number" min="0" step="0.01" data-i18n-placeholder="ph_printHours" placeholder="From slicer (e.g., 6)" />
             </div>
-            
+            <div>
+            <label data-i18n="machineRateHr">Machine time rate ($/hr) (optional)</label>
+            <input id="machineRateHr" type="number" min="0" step="0.01"
+            data-i18n-placeholder="ph_machineRateHr"
+            placeholder="e.g., 0.50" />
+            </div>
+
             <div>
             <label data-i18n="printMinutes">Print time (minutes) — per unit</label>
             <input id="printMinutes" type="number" min="0" step="1" data-i18n-placeholder="ph_printMinutes" placeholder="From slicer (e.g., 25)" />
@@ -1396,7 +1402,9 @@ customNote: "Covers extra time, revisions, communication, and risk for custom wo
         bulkNote: "Bulk discount applies to the <b>batch total</b> (before platform fees). It will not drop below <b>your total cost</b>.",
 
         printHours: "Print time (hours) — per unit",
-        printMinutes: "Print time (minutes) — per unit",
+       machineRateHr: "Machine time rate ($/hr) (optional)",
+       ph_machineRateHr: "e.g., 0.50",
+       printMinutes: "Print time (minutes) — per unit",
         gramsUsed: "Filament used (grams) — per unit",
         spoolPrice: "Spool price ($)",
         spoolWeight: "Spool weight (grams)",
@@ -1705,6 +1713,8 @@ customNote: "Cubre tiempo extra, revisiones, comunicación y riesgo del trabajo 
         bulkNote: "El descuento se aplica al <b>total del lote</b> (antes de comisiones). No bajará de <b>tu costo total</b>.",
 
         printHours: "Tiempo de impresión (horas) — por unidad",
+        machineRateHr: "Costo por hora de máquina ($/hr) (opcional)",
+        ph_machineRateHr: "ej., 0.50",
         printMinutes: "Tiempo de impresión (minutos) — por unidad",
         gramsUsed: "Filamento usado (gramos) — por unidad",
         spoolPrice: "Precio del rollo ($)",
