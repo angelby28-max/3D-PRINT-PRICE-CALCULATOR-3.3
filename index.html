@@ -1999,15 +1999,16 @@ customNote: "Cubre tiempo extra, revisiones, comunicación y riesgo del trabajo 
 const SS_DRAFT_KEY = "qr_draft_state_v1"; // sessionStorage (temporary)
 
     // Inputs managed
-    const inputIds = [
-      "quantity","bulkDiscountPct","printHours","gramsUsed","spoolPrice","spoolWeight","wastePct",
-      "packagingCost","consumablesCost",
-      "powerKW","elecRate","laborRate","laborMin","overheadPct","profitPct","customPct",
-"minFee",
-      "printerPrice","printerLifeHours","maintenancePerHr",
-      "platformFeePct","platformFixedFee","platformListingFee","platformNotes",
-      "jobName","jobNotes"
-    ];
+   const inputIds = [
+  "quantity","bulkDiscountPct","printHours","printMinutes","gramsUsed","spoolPrice","spoolWeight","wastePct",
+  "packagingCost","consumablesCost",
+  "powerKW","elecRate","laborRate","laborMin","overheadPct","profitPct","customPct",
+  "minFee",
+  "printerPrice","printerLifeHours","maintenancePerHr",
+  "platformFeePct","platformFixedFee","platformListingFee","platformNotes",
+  "jobName","jobNotes"
+];
+
     const clearState = Object.fromEntries(inputIds.map(id => [id, ""]));
 
     function money(n){
