@@ -3820,13 +3820,16 @@ function addQRToInventory(){
       const bCalc = $("tabBtnCalc");
       const bInv = $("tabBtnInv");
       const isInv = which === "inv";
+      const isHelp = which === "help";
 
-      if (tabCalc) tabCalc.style.display = isInv ? "none" : "";
-      if (tabInv) tabInv.style.display = isInv ? "" : "none";
 
-      bCalc?.classList.toggle("active", !isInv);
-      bInv?.classList.toggle("active", isInv);
+     if (tabCalc) tabCalc.style.display = (isInv || isHelp) ? "none" : "";
+     if (tabInv) tabInv.style.display = isInv ? "" : "none";
+     if ($("tabHelp")) $("tabHelp").style.display = isHelp ? "" : "none";
 
+    bCalc?.classList.toggle("active", !isInv && !isHelp);
+    bInv?.classList.toggle("active", isInv);
+    $("tabBtnHelp")?.classList.toggle("active", isHelp);
       if (isInv) renderInventory();
     }
 
@@ -4083,12 +4086,14 @@ window.addEventListener("pageshow", (e) => {
       // Tabs
       $("tabBtnCalc")?.addEventListener("click", () => showTab("calc"));
      $("tabBtnInv")?.addEventListener("click", () => {
-  if (getTier() === "beginner"){
+  
+    if (getTier() === "beginner"){
     alert("Inventory is available in Advanced and Pro mode.");
     return;
   }
   showTab("inv");
 });
+$("tabBtnHelp")?.addEventListener("click", () => showTab("help"));
 
 $("openInventoryBtn")?.addEventListener("click", () => {
   if (getTier() === "beginner"){
