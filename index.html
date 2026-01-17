@@ -385,7 +385,8 @@ body.light .modalBody{ color:#111827; }
     <div class="tabs" role="tablist" aria-label="App tabs">
       <button id="tabBtnCalc" class="tabbtn active" type="button" data-tab="calc" data-i18n="tab_calculator">Calculator</button>
       <button id="tabBtnInv" class="tabbtn" type="button" data-tab="inv" data-i18n="tab_inventory">Inventory</button>
-      <button id="tabBtnHelp" class="tabbtn" type="button" data-tab="help">Help</button>
+     <button id="tabBtnHelp" class="tabbtn" type="button" data-tab="help" data-i18n="tab_help">Help</button>
+
      </div>
 
     <!-- Calculator Tab -->
@@ -898,8 +899,9 @@ body.light .modalBody{ color:#111827; }
 <section id="tabHelp" style="display:none;">
   <div class="card">
     <div class="sec-title">
-      <h2>Help</h2>
-      <span class="pill">Guide</span>
+     <h2 data-i18n="help_title">Help</h2>
+     <span class="pill" data-i18n="help_pill">Guide</span>
+
     </div>
 
     <div class="note">
@@ -1354,6 +1356,9 @@ tier_label: "Tier",
 
         tab_calculator: "Calculator",
         tab_inventory: "Inventory",
+        tab_help: "Help",
+        help_title: "Help",
+        help_pill: "Guide",
 
         inv_title: "Inventory",
         inv_searchLabel: "Search",
@@ -1665,6 +1670,9 @@ tier_label: "Nivel",
 
         tab_calculator: "Calculadora",
         tab_inventory: "Inventario",
+        tab_help: "Ayuda",
+        help_title: "Ayuda",
+        help_pill: "Guía",
 
         inv_title: "Inventario",
         inv_searchLabel: "Buscar",
