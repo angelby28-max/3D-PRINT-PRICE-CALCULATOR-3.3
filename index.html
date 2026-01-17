@@ -573,8 +573,11 @@ body.light .modalBody{ color:#111827; }
             </div>
 
             <div>
-              <label data-i18n="printHours">Print time (hours) — per unit</label>
-              <input id="printHours" type="number" min="0" step="0.01" data-i18n-placeholder="ph_printHours" placeholder="From slicer (e.g., 6)" />
+           <label data-i18n="printHours">
+            Print time (hours) — per unit
+            <span class="tip" data-tip="Enter total slicer time for one item. Example: 6 = six hours.">?</span>
+            </label>
+            <input id="printHours" type="number" min="0" step="0.01" data-i18n-placeholder="ph_printHours" placeholder="From slicer (e.g., 6)" />
             </div>
             <div>
             <label data-i18n="machineRateHr">Machine time rate ($/hr) (optional)</label>
