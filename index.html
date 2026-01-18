@@ -87,7 +87,20 @@ body.light .modalBody{ color:#111827; }
       box-shadow: 0 10px 30px rgba(0,0,0,.25);
       padding:14px;
     }
-    
+    /* ===========================
+   HELP PAGE TEXT STYLING
+=========================== */
+.help-content{
+  color: var(--text);
+  line-height: 1.45;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+/* Light mode fix */
+#appRoot.light .help-content{
+  color: #111827;
+}
    .sec-title{ display:flex; justify-content:space-between; align-items:baseline; margin:0 0 8px; gap:10px; }
     .sec-title h2{ font-size:14px; margin:0; }
     .sec-title span{ color:var(--muted); font-size:12px; }
