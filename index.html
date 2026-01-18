@@ -86,7 +86,7 @@ body.light .modalBody{ color:#111827; }
       border-radius:14px;
       box-shadow: 0 10px 30px rgba(0,0,0,.25);
       padding:14px;
-      margin-top: 4px;
+      margin-top: 0px;
      }
     /* ===========================
    HELP PAGE TEXT STYLING
@@ -236,7 +236,17 @@ body.light .modalBody{ color:#111827; }
       margin: 6px 0 6px;
       flex-wrap:wrap;
     }
-    .tabbtn{
+    /* ✅ Help tab: remove extra top spacing */
+#tabHelp{
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+#tabHelp .card{
+  margin-top: 0 !important;
+}
+
+   .tabbtn{
       border:1px solid var(--line);
       background:#0b1020;
       color:var(--text);
