@@ -898,15 +898,41 @@ body.light .modalBody{ color:#111827; }
 <!-- Help Tab -->
 <section id="tabHelp" style="display:none;">
   <div class="card">
+
     <div class="sec-title">
-     <h2 data-i18n="help_title">Help</h2>
-     <span class="pill" data-i18n="help_pill">Guide</span>
+      <h2 data-i18n="help_title">Help</h2>
+      <span class="pill" data-i18n="help_pill">Guide</span>
+    </div>
+
+    <div class="help-sections">
+
+      <div class="help-item">
+        <button class="help-toggle">📐 Calculator</button>
+        <div class="help-content">
+          <p>Explanation coming here.</p>
+        </div>
+      </div>
+
+      <div class="help-item">
+        <button class="help-toggle">📦 Inventory</button>
+        <div class="help-content">
+          <p>Explanation coming here.</p>
+        </div>
+      </div>
+
+      <div class="help-item">
+        <button class="help-toggle">🔗 QR Codes</button>
+        <div class="help-content">
+          <p>Explanation coming here.</p>
+        </div>
+      </div>
 
     </div>
 
     <div class="note">
       Help page is coming next. In the next commits we will add the full Help layout and bilingual content.
     </div>
+
   </div>
 </section>
 
@@ -4406,6 +4432,13 @@ $("licenseClearBtn")?.addEventListener("click", clearLicense);
   // If opened from a QR scan, jump to Calculator tab so you can see the QR section
   if (item || price) showTab("calc");
 }
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("help-toggle")){
+    const box = e.target.nextElementSibling;
+    if (!box) return;
+    box.style.display = box.style.display === "block" ? "none" : "block";
+  }
+});
 
     init();
   
