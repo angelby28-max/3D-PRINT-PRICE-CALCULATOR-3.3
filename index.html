@@ -931,13 +931,11 @@ body.light .modalBody{ color:#111827; }
   <div class="help-content" data-i18n-html="help_inv_body" style="display:none;"></div>
 </div>
 
+<div class="help-item">
+  <button class="help-toggle" type="button" data-i18n="help_qr_btn">🔗 QR Codes</button>
+  <div class="help-content" data-i18n-html="help_qr_body" style="display:none;"></div>
+</div>
 
-      <div class="help-item">
-        <button class="help-toggle">🔗 QR Codes</button>
-        <div class="help-content">
-          <p>Explanation coming here.</p>
-        </div>
-      </div>
 
     </div>
 
@@ -1438,6 +1436,24 @@ Stores items you sell often so you can track stock and pricing.<br/><br/>
 <b>iOS note</b><br/>
 Safari and the Home Screen app can have separate inventories. For QR scanning, using Safari inventory is recommended.
 `,
+help_qr_btn: "🔗 QR Codes",
+help_qr_body: `
+<b>What QR codes do</b><br/>
+QR codes open a link that can auto-fill <b>Item name</b> + <b>Price</b> in the app.<br/><br/>
+
+<b>Best workflow</b><br/>
+1) Create item in QR section<br/>
+2) Add to Inventory<br/>
+3) Print QR (you can also <b>Save as PDF</b> from iOS print screen)<br/><br/>
+
+<b>Important iOS note (Safari vs Home Screen)</b><br/>
+On iPhone, Safari and the Home Screen app can store data separately (different localStorage).<br/>
+• If you build Inventory in the Home Screen app, scanning a QR with your camera opens Safari, and Safari may not show the same Inventory.<br/>
+• For best consistency with QR scanning, use the app in <b>Safari</b> when creating your Inventory and printing/scanning QRs.<br/><br/>
+
+<b>Android note</b><br/>
+Android is usually more consistent opening the installed PWA, so this issue is less common.
+`,
 
         tab_calculator: "Calculator",
         tab_inventory: "Inventory",
@@ -1798,6 +1814,24 @@ Guarda artículos que vendes seguido para controlar stock y precio.<br/><br/>
 
 <b>Nota iOS</b><br/>
 Safari y la app en pantalla de inicio pueden tener inventarios separados. Para escanear QR, se recomienda usar el inventario en Safari.
+`,
+help_qr_btn: "🔗 Códigos QR",
+help_qr_body: `
+<b>Qué hacen los QR</b><br/>
+Los códigos QR abren un enlace que puede llenar automáticamente <b>Nombre</b> + <b>Precio</b> en la app.<br/><br/>
+
+<b>Flujo recomendado</b><br/>
+1) Crea el artículo en la sección QR<br/>
+2) Agrégalo al Inventario<br/>
+3) Imprime el QR (también puedes <b>Guardar como PDF</b> desde la pantalla de impresión en iPhone)<br/><br/>
+
+<b>Nota importante iOS (Safari vs Pantalla de inicio)</b><br/>
+En iPhone, Safari y la app en pantalla de inicio pueden guardar datos por separado (localStorage diferente).<br/>
+• Si creas tu Inventario en la app de pantalla de inicio, al escanear un QR la cámara abre Safari, y Safari puede no mostrar el mismo Inventario.<br/>
+• Para que el QR funcione más consistente, usa la app en <b>Safari</b> al crear tu Inventario y al imprimir/escanear QRs.<br/><br/>
+
+<b>Nota Android</b><br/>
+En Android normalmente es más consistente abrir la PWA instalada, así que este problema es menos común.
 `,
 
         tab_calculator: "Calculadora",
