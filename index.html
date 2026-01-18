@@ -906,12 +906,13 @@ body.light .modalBody{ color:#111827; }
 
     <div class="help-sections">
 
-      <div class="help-item">
-        <button class="help-toggle">📐 Calculator</button>
-        <div class="help-content">
-          <p>Explanation coming here.</p>
-        </div>
-      </div>
+     <div class="help-item">
+  <button class="help-toggle" type="button" data-i18n="help_calc_btn">📐 Calculator</button>
+  <div class="help-content" data-i18n-html="help_calc_body" style="display:none;">
+    <!-- content is injected by i18n -->
+  </div>
+</div>
+
 
       <div class="help-item">
         <button class="help-toggle">📦 Inventory</button>
@@ -4470,15 +4471,18 @@ $("licenseClearBtn")?.addEventListener("click", clearLicense);
   // If opened from a QR scan, jump to Calculator tab so you can see the QR section
   if (item || price) showTab("calc");
 }
-document.addEventListener("click", (e) => {
-  if (e.target.classList.contains("help-toggle")){
-    const box = e.target.nextElementSibling;
-    if (!box) return;
-    box.style.display = box.style.display === "block" ? "none" : "block";
-  }
+
+  document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".help-toggle");
+  if (!btn) return;
+
+  const box = btn.nextElementSibling;
+  if (!box) return;
+
+  box.style.display = box.style.display === "block" ? "none" : "block";
 });
 
-    init();
+  init();
   
 // ✅ If coming back from Print page, pageshow handler will restore state
 if (sessionStorage.getItem("qrJustReturnedFromPrint") === "1") {
