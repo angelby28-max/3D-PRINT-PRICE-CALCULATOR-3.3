@@ -926,13 +926,11 @@ body.light .modalBody{ color:#111827; }
   </div>
 </div>
 
+<div class="help-item">
+  <button class="help-toggle" type="button" data-i18n="help_inv_btn">📦 Inventory</button>
+  <div class="help-content" data-i18n-html="help_inv_body" style="display:none;"></div>
+</div>
 
-      <div class="help-item">
-        <button class="help-toggle">📦 Inventory</button>
-        <div class="help-content">
-          <p>Explanation coming here.</p>
-        </div>
-      </div>
 
       <div class="help-item">
         <button class="help-toggle">🔗 QR Codes</button>
@@ -1417,6 +1415,29 @@ help_calc_body: `
 • <b>Custom item %</b> (Pro): surcharge for custom work.<br/>
 • <b>Presets</b>: quick-fill printer/filament/platform fields.
 `,
+help_inv_btn: "📦 Inventory",
+help_inv_body: `
+<b>What it is</b><br/>
+Stores items you sell often so you can track stock and pricing.<br/><br/>
+
+<b>What you see</b><br/>
+• <b>Qty</b>: units in stock<br/>
+• <b>Unit</b>: price per unit<br/>
+• <b>Total</b>: Qty × Unit<br/><br/>
+
+<b>Buttons</b><br/>
+• <b>+1 / -1</b>: adjust stock<br/>
+• <b>Sold</b>: reduces qty when you sell one<br/>
+• <b>Duplicate</b>: copy an item<br/>
+• <b>Delete</b>: remove item<br/><br/>
+
+<b>Backup</b><br/>
+• <b>Export</b>: saves a JSON backup<br/>
+• <b>Import</b>: restores from JSON<br/><br/>
+
+<b>iOS note</b><br/>
+Safari and the Home Screen app can have separate inventories. For QR scanning, using Safari inventory is recommended.
+`,
 
         tab_calculator: "Calculator",
         tab_inventory: "Inventory",
@@ -1754,6 +1775,29 @@ help_calc_body: `
 • <b>Tarifas de plataforma</b>: Etsy/Shopify/etc (porcentaje + tarifa fija).<br/>
 • <b>% Personalizado</b> (Pro): recargo por trabajo personalizado.<br/>
 • <b>Presets</b>: llenado rápido (impresora, filamento, plataforma).
+`,
+help_inv_btn: "📦 Inventario",
+help_inv_body: `
+<b>Qué es</b><br/>
+Guarda artículos que vendes seguido para controlar stock y precio.<br/><br/>
+
+<b>Lo que ves</b><br/>
+• <b>Cantidad</b>: unidades disponibles<br/>
+• <b>Unitario</b>: precio por unidad<br/>
+• <b>Total</b>: Cantidad × Unitario<br/><br/>
+
+<b>Botones</b><br/>
+• <b>+1 / -1</b>: ajustar stock<br/>
+• <b>Vendido</b>: baja la cantidad al vender<br/>
+• <b>Duplicar</b>: copiar artículo<br/>
+• <b>Eliminar</b>: borrar artículo<br/><br/>
+
+<b>Respaldo</b><br/>
+• <b>Exportar</b>: guarda respaldo JSON<br/>
+• <b>Importar</b>: restaura desde JSON<br/><br/>
+
+<b>Nota iOS</b><br/>
+Safari y la app en pantalla de inicio pueden tener inventarios separados. Para escanear QR, se recomienda usar el inventario en Safari.
 `,
 
         tab_calculator: "Calculadora",
