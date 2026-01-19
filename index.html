@@ -4531,6 +4531,11 @@ if ($("tierSelect")) $("tierSelect").value = tierNow;
 if ($("beginnerMode")) $("beginnerMode").checked = isBeginnerTier;
 
 applyBeginnerModeUI(isBeginnerTier);
+// Beginner-only: show/hide Machine time rate (on load)
+if ($("machineRateRow")) $("machineRateRow").style.display = isBeginnerTier ? "" : "none";
+
+// Prevent hidden double-charge (on load)
+if (!isBeginnerTier && $("machineRateHr")) $("machineRateHr").value = "";
 
  const lightDefault = (typeof settings.lightMode === "boolean") ? settings.lightMode : false;
 
