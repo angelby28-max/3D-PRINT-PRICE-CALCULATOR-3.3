@@ -4495,6 +4495,11 @@ $("tierSelect").addEventListener("change", (e) => {
   if ($("beginnerMode")) $("beginnerMode").checked = isBeginnerTier;
 
   applyBeginnerModeUI(isBeginnerTier);
+  // Beginner-only: show/hide Machine time rate
+  if ($("machineRateRow")) $("machineRateRow").style.display = isBeginnerTier ? "" : "none";
+
+  // Prevent hidden double-charge
+  if (!isBeginnerTier && $("machineRateHr")) $("machineRateHr").value = "";
 
   if (typeof syncTierDropdownToLicense === "function") {
     syncTierDropdownToLicense();
