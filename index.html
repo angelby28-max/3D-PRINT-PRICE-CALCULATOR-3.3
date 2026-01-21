@@ -622,11 +622,6 @@ body.light .modalBody{ color:#111827; }
               <label data-i18n="profitPct">Profit margin (%)</label>
               <input id="profitPct" type="number" min="0" step="0.1" data-i18n-placeholder="ph_profitPct" placeholder="e.g., 15" />
             </div>
-            <!-- Sales Tax (Advanced / Pro only) -->
-          <div id="salesTaxRow" class="advanced-only">
-          <label data-i18n="salesTaxPct">Sales tax (%)</label>
-            <input id="salesTaxPct" type="number" min="0" step="0.01" placeholder="e.g., 8.25" />
-            </div>
 
             <div class="advanced-only">
               <label data-i18n="minFee">Minimum job fee ($)</label>
@@ -3094,30 +3089,6 @@ if (isCustom && customPct > 0){
           platformAdded = gross - discountedTarget;
         }
       }
-      // ------------------------------
-      // Sales Tax (Advanced / Pro only)
-      // Option A: tax base excludes packaging + platform fees
-      // ------------------------------
-      let salesTaxAmt = 0;
-      const tierNow = (typeof getTier === "function") ? getTier() : "beginner";
-      const taxPct = Number($("salesTaxPct")?.value || 0);
-
-      // Keep subtotal separate so profit doesn't accidentally include tax later
-      const subtotal = final;
-
-      if (tierNow !== "beginner" && taxPct > 0){
-        const taxRate = taxPct / 100;
-
-        const taxBase = Math.max(
-          0,
-          subtotal - (platformAdded || 0) - (packaging || 0)
-        );
-
-        salesTaxAmt = taxBase * taxRate;
-      }
-
-      const finalWithTax = Number((subtotal + salesTaxAmt).toFixed(2));
-      const finalPerUnitWithTax = Number((finalWithTax / Math.max(1, qty)).toFixed(2));
 
       const totalCost = costWithOverhead + platformAdded; // discount reduces price, not cost
       const profitDollars = final - totalCost;
@@ -3163,28 +3134,9 @@ if (isCustom && customPct > 0){
         } else val = money(v);
         return `<div class="line-item"><div class="k">${label}</div><div class="v">${val}</div></div>`;
       }).join("");
-// ------------------------------
-// Sales Tax (Advanced / Pro only)
-// Option A: Final excluding shipping & platform fees
-// ------------------------------
-let salesTaxAmt = 0;
-const tierNow = (typeof getTier === "function") ? getTier() : "beginner";
-const taxPct = Number($("salesTaxPct")?.value || 0);
 
-if (tierNow !== "beginner" && taxPct > 0){
-  const taxRate = taxPct / 100;
-
-  // Option A tax base: final - shipping(packaging) - platform fees
-  const taxBase = Math.max(
-    0,
-    final - (platformAdded || 0) - (packaging || 0)
-  );
-
-  salesTaxAmt = taxBase * taxRate;
-
-$("finalPrice").textContent = money(finalWithTax);
-$("finalPricePerUnit").textContent = money(finalPerUnitWithTax);
-
+      $("finalPrice").textContent = money(final);
+      $("finalPricePerUnit").textContent = money(finalPerUnit);
 
       $("profitBox").innerHTML = `
         <div class="line-item"><div class="k">${t("pv_totalCost")}</div><div class="v">${money(totalCost)}</div></div>
@@ -4566,11 +4518,6 @@ $("tierSelect").addEventListener("change", (e) => {
   applyBeginnerModeUI(isBeginnerTier);
   // Beginner-only: show/hide Machine time rate
   if ($("machineRateRow")) $("machineRateRow").style.display = isBeginnerTier ? "" : "none";
-// Sales tax: only Advanced & Pro
-if ($("salesTaxRow")) {
-  $("salesTaxRow").style.display = isBeginnerTier ? "none" : "block";
-
-}
 
   // Prevent hidden double-charge
   if (!isBeginnerTier && $("machineRateHr")) $("machineRateHr").value = "";
