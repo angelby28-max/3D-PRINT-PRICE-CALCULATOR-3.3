@@ -785,8 +785,21 @@ body.light .modalBody{ color:#111827; }
 
           <div class="breakdown" id="breakdown"></div>
       
-          <!-- ✅ Pro-only: Sales Tax -->
-         <div class="breakdown" id="taxBox" style="display:none;"></div>
+        <!-- ✅ Pro-only: Sales Tax -->
+<div class="breakdown" id="taxBox" style="display:none;">
+  <div class="line-item">
+    <div class="k">Sales Tax Rate (%)</div>
+    <div class="v">
+      <input id="taxRate" type="number" min="0" step="0.01" placeholder="e.g. 8.25" style="width:90px; text-align:right;">
+    </div>
+  </div>
+
+  <div class="line-item">
+    <div class="k">Sales Tax</div>
+    <div class="v" id="salesTaxValue">$0.00</div>
+  </div>
+</div>
+
 
           <div class="total">
             <div class="k" data-i18n="finalPriceTotal">Final Price (total)</div>
