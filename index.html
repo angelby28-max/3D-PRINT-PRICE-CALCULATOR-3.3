@@ -1002,12 +1002,14 @@ const TIERS = {
     labels_print: false,
 
     // Calculator advanced sections
-    custom_surcharge: false,
-    platform_fees: false,
-    depreciation: false,
-    presets: false,
-    job_history: false
-  },
+  custom_surcharge: false,
+platform_fees: false,
+depreciation: false,
+presets: false,
+job_history: false,
+sales_tax: false
+},
+
 
   advanced: {
     name: { en: "Advanced", es: "Avanzado" },
@@ -1029,9 +1031,10 @@ const TIERS = {
     platform_fees: true,
     depreciation: true,
     presets: true,
-    job_history: false // optional — can move to Pro if you want
-  },
-
+ job_history: false, // optional — can move to Pro if you want
+sales_tax: false
+},
+ 
   pro: {
     name: { en: "Pro", es: "Pro" },
     // Everything unlocked
@@ -1049,7 +1052,9 @@ const TIERS = {
     platform_fees: true,
     depreciation: true,
     presets: true,
-    job_history: true
+    job_history: true,
+    sales_tax: true
+
   }
 };
 
