@@ -622,6 +622,12 @@ body.light .modalBody{ color:#111827; }
               <label data-i18n="profitPct">Profit margin (%)</label>
               <input id="profitPct" type="number" min="0" step="0.1" data-i18n-placeholder="ph_profitPct" placeholder="e.g., 15" />
             </div>
+          <div class="advanced-only">
+           <label data-i18n="salesTaxPct">Sales tax (%)</label>
+           <input id="salesTaxPct" type="number" min="0" step="0.01"
+           data-i18n-placeholder="ph_salesTaxPct"
+           placeholder="e.g., 8.25" />
+          </div>
 
             <div class="advanced-only">
               <label data-i18n="minFee">Minimum job fee ($)</label>
@@ -1569,6 +1575,8 @@ customNote: "Covers extra time, revisions, communication, and risk for custom wo
         laborMin: "Active labor (minutes)",
         overheadPct: "Overhead (%)",
         profitPct: "Profit margin (%)",
+        salesTaxPct: "Sales tax (%)",
+        ph_salesTaxPct: "e.g., 8.25",
         minFee: "Minimum job fee ($)",
 
         machineDepTitle: "Machine depreciation",
@@ -1951,7 +1959,9 @@ customNote: "Cubre tiempo extra, revisiones, comunicación y riesgo del trabajo 
         laborMin: "Mano de obra activa (minutos)",
         overheadPct: "Gastos generales (%)",
         profitPct: "Margen de ganancia (%)",
-        minFee: "Mínimo por trabajo ($)",
+       salesTaxPct: "Impuesto de venta (%)",
+       ph_salesTaxPct: "ej., 8.25",
+       minFee: "Mínimo por trabajo ($)",
 
         machineDepTitle: "Depreciación de la máquina",
         addsMachineCost: "Agrega costo de máquina",
@@ -2231,7 +2241,7 @@ const SS_DRAFT_KEY = "qr_draft_state_v1"; // sessionStorage (temporary)
     // Inputs managed
  const inputIds = [
   "quantity","bulkDiscountPct","printHours","printMinutes","machineRateHr","gramsUsed",
-  "spoolPrice","spoolWeight",
+  "spoolPrice","spoolWeight","salesTaxPct",
   "packagingCost","consumablesCost",
   "powerKW","elecRate","laborRate","laborMin","overheadPct","profitPct","customPct",
   "minFee",
