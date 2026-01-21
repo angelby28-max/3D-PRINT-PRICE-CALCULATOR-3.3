@@ -3110,6 +3110,11 @@ if (isCustom && customPct > 0){
       const totalCost = costWithOverhead + platformAdded; // discount reduces price, not cost
       const profitDollars = final - totalCost;
       const profitPctActual = (final > 0) ? (profitDollars / final) : 0;
+      
+      // ✅ Sales tax (Option A): apply tax to final price EXCLUDING packaging/shipping.
+      const taxableBase = Math.max(0, final - packaging);
+      const salesTaxAmount = taxableBase * salesTaxPctInput;
+      final = final + salesTaxAmount;
 
       const finalPerUnit = final / qty;
       const costPerUnit = totalCost / qty;
@@ -3132,7 +3137,7 @@ if (isCustom && customPct > 0){
         ["bd_bulkDiscount", -bulkDiscountAmt, "moneySigned"],
         ["bd_targetAfterDiscount", discountedTarget, "money"],
         ["bd_platform", platformAdded, "money"],
-        ["bd_salesTax", 0, "money"],
+        ["bd_salesTax", salesTaxAmount, "money"],
         ["bd_minApplied", minApplied ? 1 : 0, "bool"]
       ];
 
