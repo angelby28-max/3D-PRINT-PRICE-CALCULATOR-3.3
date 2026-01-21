@@ -622,12 +622,6 @@ body.light .modalBody{ color:#111827; }
               <label data-i18n="profitPct">Profit margin (%)</label>
               <input id="profitPct" type="number" min="0" step="0.1" data-i18n-placeholder="ph_profitPct" placeholder="e.g., 15" />
             </div>
-            <div class="advanced-only">
-            <label data-i18n="salesTaxPct">Sales tax (%) (optional)</label>
-            <input id="salesTaxPct" type="number" min="0" step="0.01"
-            data-i18n-placeholder="ph_salesTaxPct"
-            placeholder="e.g., 8.25" />
-            </div>
 
             <div class="advanced-only">
               <label data-i18n="minFee">Minimum job fee ($)</label>
@@ -950,6 +944,10 @@ body.light .modalBody{ color:#111827; }
 <div class="help-item">
   <button class="help-toggle" type="button" data-i18n="help_qr_btn">🔗 QR Codes</button>
   <div class="help-content" data-i18n-html="help_qr_body" style="display:none;"></div>
+</div>
+<div class="help-item">
+  <button class="help-toggle" type="button" data-i18n="help_tut_btn">🎥 Tutorials</button>
+  <div class="help-content" data-i18n-html="help_tut_body" style="display:none;"></div>
 </div>
 
 
@@ -1456,7 +1454,20 @@ Stores items you sell often so you can track stock and pricing.<br/><br/>
 Safari and the Home Screen app can have separate inventories. For QR scanning, using Safari inventory is recommended.
 `,
 help_qr_btn: "🔗 QR Codes",
-help_qr_body: `
+help_tut_btn: "🎥 Tutorials",
+help_tut_body: `
+<b>Video Tutorials</b><br/><br/>
+
+• <a href="https://youtube.com/shorts/uHa9rhg3nfQ" target="_blank">Getting started app interface</a><br/>
+• <a href="https://youtube.com/shorts/vG7lu7bf66Q" target="_blank">Beginner mode basics</a><br/>
+• <a href="https://youtube.com/shorts/aQGifI2oiuU" target="_blank">Advanced mode features</a><br/>
+• <a href="https://youtube.com/shorts/MXq6UaBwx8Y" target="_blank">Advanced mode part 2</a><br/>
+• <a href="https://youtu.be/dJQa0LIyFMs" target="_blank">Full beginner mode walkthrough</a><br/><br/>
+
+More tutorials will be added over time.
+`,
+
+ help_qr_body: `
 <b>What QR codes do</b><br/>
 QR codes open a link that can auto-fill <b>Item name</b> + <b>Price</b> in the app.<br/><br/>
 
@@ -1836,6 +1847,7 @@ Guarda artículos que vendes seguido para controlar stock y precio.<br/><br/>
 Safari y la app en pantalla de inicio pueden tener inventarios separados. Para escanear QR, se recomienda usar el inventario en Safari.
 `,
 help_qr_btn: "🔗 Códigos QR",
+help_tut_btn: "🎥 Tutoriales",
 help_qr_body: `
 <b>Qué hacen los QR</b><br/>
 Los códigos QR abren un enlace que puede llenar automáticamente <b>Nombre</b> + <b>Precio</b> en la app.<br/><br/>
@@ -2217,8 +2229,9 @@ customNote: "Cubre tiempo extra, revisiones, comunicación y riesgo del trabajo 
 const SS_DRAFT_KEY = "qr_draft_state_v1"; // sessionStorage (temporary)
 
     // Inputs managed
-   const inputIds = [
+ const inputIds = [
   "quantity","bulkDiscountPct","printHours","printMinutes","machineRateHr","gramsUsed",
+  "spoolPrice","spoolWeight",
   "packagingCost","consumablesCost",
   "powerKW","elecRate","laborRate","laborMin","overheadPct","profitPct","customPct",
   "minFee",
@@ -2227,7 +2240,7 @@ const SS_DRAFT_KEY = "qr_draft_state_v1"; // sessionStorage (temporary)
   "jobName","jobNotes"
 ];
 
-    const clearState = Object.fromEntries(inputIds.map(id => [id, ""]));
+   const clearState = Object.fromEntries(inputIds.map(id => [id, ""]));
 
     function money(n){
       const v = Number.isFinite(n) ? n : 0;
