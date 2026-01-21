@@ -784,6 +784,9 @@ body.light .modalBody{ color:#111827; }
           </div>
 
           <div class="breakdown" id="breakdown"></div>
+      
+          <!-- ✅ Pro-only: Sales Tax -->
+         <div class="breakdown" id="taxBox" style="display:none;"></div>
 
           <div class="total">
             <div class="k" data-i18n="finalPriceTotal">Final Price (total)</div>
@@ -1120,6 +1123,12 @@ function gate(featureKey, featureLabel){
   showUpgrade(featureLabel);
   return false;
 }
+// ✅ Pro-only Sales Tax visibility (initial load)
+(function(){
+  const box = $("taxBox");
+  if (!box) return;
+  box.style.display = hasAccess("sales_tax") ? "block" : "none";
+})();
 
     // ================================
 // ✅ QR ITEM (Step 2: button wiring)
