@@ -784,22 +784,6 @@ body.light .modalBody{ color:#111827; }
           </div>
 
           <div class="breakdown" id="breakdown"></div>
-      
-        <!-- ✅ Pro-only: Sales Tax -->
-<div class="breakdown" id="taxBox" style="display:none;">
-  <div class="line-item">
-    <div class="k">Sales Tax Rate (%)</div>
-    <div class="v">
-      <input id="taxRate" type="number" min="0" step="0.01" placeholder="e.g. 8.25" style="width:90px; text-align:right;">
-    </div>
-  </div>
-
-  <div class="line-item">
-    <div class="k">Sales Tax</div>
-    <div class="v" id="salesTaxValue">$0.00</div>
-  </div>
-</div>
-
 
           <div class="total">
             <div class="k" data-i18n="finalPriceTotal">Final Price (total)</div>
@@ -1018,14 +1002,12 @@ const TIERS = {
     labels_print: false,
 
     // Calculator advanced sections
-  custom_surcharge: false,
-platform_fees: false,
-depreciation: false,
-presets: false,
-job_history: false,
-sales_tax: false
-},
-
+    custom_surcharge: false,
+    platform_fees: false,
+    depreciation: false,
+    presets: false,
+    job_history: false
+  },
 
   advanced: {
     name: { en: "Advanced", es: "Avanzado" },
@@ -1047,10 +1029,9 @@ sales_tax: false
     platform_fees: true,
     depreciation: true,
     presets: true,
- job_history: false, // optional — can move to Pro if you want
-sales_tax: false
-},
- 
+    job_history: false // optional — can move to Pro if you want
+  },
+
   pro: {
     name: { en: "Pro", es: "Pro" },
     // Everything unlocked
@@ -1068,9 +1049,7 @@ sales_tax: false
     platform_fees: true,
     depreciation: true,
     presets: true,
-    job_history: true,
-    sales_tax: true
-
+    job_history: true
   }
 };
 
@@ -1136,12 +1115,6 @@ function gate(featureKey, featureLabel){
   showUpgrade(featureLabel);
   return false;
 }
-// ✅ Pro-only Sales Tax visibility (initial load)
-(function(){
-  const box = $("taxBox");
-  if (!box) return;
-  box.style.display = hasAccess("sales_tax") ? "block" : "none";
-})();
 
     // ================================
 // ✅ QR ITEM (Step 2: button wiring)
