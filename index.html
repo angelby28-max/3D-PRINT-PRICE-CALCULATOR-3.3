@@ -4525,7 +4525,8 @@ $("tierSelect").addEventListener("change", (e) => {
   if ($("machineRateRow")) $("machineRateRow").style.display = isBeginnerTier ? "" : "none";
 // Sales tax: only Advanced & Pro
 if ($("salesTaxRow")) {
-  $("salesTaxRow").style.display = isBeginnerTier ? "none" : "";
+  $("salesTaxRow").style.display = isBeginnerTier ? "none" : "block";
+
 }
 
   // Prevent hidden double-charge
