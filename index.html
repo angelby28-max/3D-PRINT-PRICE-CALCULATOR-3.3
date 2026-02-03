@@ -4409,7 +4409,11 @@ if ($("qrHint") && !$("qrPreview")?.innerHTML.trim()){
 });
 
 
-      $("applyFilamentBtn")?.addEventListener("click", () => applyFields(FILAMENT_PRESETS[$("filamentPreset").value]?.fields || {}));
+    $("applyFilamentBtn")?.addEventListener("click", () => {
+  const key = $("filamentPreset").value;
+  const fields = FILAMENT_PRESETS[key]?.fields || {};
+  applyFields(fields, { force: true }); // ✅ overwrite wastePct every time
+});
 
       $("applyPlatformBtn")?.addEventListener("click", () => {
         const key = $("platformPreset").value;
